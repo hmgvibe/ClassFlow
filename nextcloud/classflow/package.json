@@ -1,0 +1,29 @@
+{
+  "name": "classflow-nextcloud",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "typecheck": "vue-tsc --noEmit",
+    "lint": "eslint src --max-warnings=0"
+  },
+  "dependencies": {
+    "@nextcloud/axios": "2.6.0",
+    "@nextcloud/router": "3.2.0",
+    "@nextcloud/vue": "9.13.1",
+    "vue": "3.5.43"
+  },
+  "devDependencies": {
+    "@nextcloud/eslint-config": "9.0.1",
+    "@vitejs/plugin-vue": "6.0.9",
+    "@vue/tsconfig": "0.9.1",
+    "eslint": "10.11.0",
+    "sass": "1.105.0",
+    "typescript": "6.0.3",
+    "vite": "8.3.1",
+    "vue-tsc": "3.3.11"
+  },
+  "packageManager": "pnpm@10.17.1"
+}

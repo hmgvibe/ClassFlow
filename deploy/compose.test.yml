@@ -1,0 +1,42 @@
+services:
+  db:
+    image: mariadb:lts
+    restart: unless-stopped
+    command: --transaction-isolation=READ-COMMITTED
+    environment:
+      MARIADB_ROOT_PASSWORD: ${CLASSFLOW_DB_ROOT_PASSWORD:?Set CLASSFLOW_DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: nextcloud
+      MARIADB_USER: nextcloud
+      MARIADB_PASSWORD: ${CLASSFLOW_DB_PASSWORD:?Set CLASSFLOW_DB_PASSWORD}
+    volumes:
+      - classflow_test_db:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+
+  app:
+    image: nextcloud:35-apache
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "${CLASSFLOW_BIND:-127.0.0.1:18088}:80"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: ${CLASSFLOW_DB_PASSWORD:?Set CLASSFLOW_DB_PASSWORD}
+      REDIS_HOST: redis
+      NEXTCLOUD_ADMIN_USER: ${CLASSFLOW_ADMIN_USER:?Set CLASSFLOW_ADMIN_USER}
+      NEXTCLOUD_ADMIN_PASSWORD: ${CLASSFLOW_ADMIN_PASSWORD:?Set CLASSFLOW_ADMIN_PASSWORD}
+      NEXTCLOUD_TRUSTED_DOMAINS: ${CLASSFLOW_TRUSTED_DOMAINS:-localhost}
+    volumes:
+      - classflow_test_nextcloud:/var/www/html
+      - ../nextcloud/classflow:/var/www/html/custom_apps/classflow:ro
+
+volumes:
+  classflow_test_db:
+  classflow_test_nextcloud:
+

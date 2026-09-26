@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>classflow</id>
+    <name>ClassFlow</name>
+    <summary>課表、作業、考試與活動管理</summary>
+    <description><![CDATA[在 Nextcloud 與 Android 之間同步管理固定每週課表、作業、考試與學校活動。]]></description>
+    <version>0.1.0</version>
+    <licence>agpl</licence>
+    <author mail="">Ray</author>
+    <namespace>ClassFlow</namespace>
+    <category>organization</category>
+    <dependencies>
+        <php min-version="8.3" />
+        <nextcloud min-version="35" max-version="35" />
+        <database>sqlite</database>
+        <database>mysql</database>
+        <database>pgsql</database>
+    </dependencies>
+    <navigations>
+        <navigation>
+            <name>ClassFlow</name>
+            <route>classflow.page.index</route>
+            <order>45</order>
+            <icon>app.svg</icon>
+        </navigation>
+    </navigations>
+</info>
+
