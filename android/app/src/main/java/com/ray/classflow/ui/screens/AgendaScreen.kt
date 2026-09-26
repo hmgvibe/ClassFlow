@@ -22,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
@@ -29,6 +30,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
@@ -267,7 +270,16 @@ private fun AgendaEditorDialog(
     var time by remember(item) { mutableStateOf(initialDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))) }
     var allDay by remember(item) { mutableStateOf(item?.allDay ?: false) }
     var notes by remember(item) { mutableStateOf(item?.notes.orEmpty()) }
-    var linkedSlots by remember(item) { mutableStateOf(item?.linkedSlotIds?.toSet() ?: emptySet()) }
+    val initialLinkedSlot = remember(item, slots) {
+        slots.sortedWith(compareBy({ it.dayOfWeek }, { it.startMinutes }))
+            .firstOrNull { it.id in item?.linkedSlotIds.orEmpty() }
+    }
+    var linkedDay by remember(item, slots) {
+        mutableIntStateOf(initialLinkedSlot?.dayOfWeek ?: initialDateTime.dayOfWeek.value)
+    }
+    var linkedSlotId by remember(item, slots) { mutableStateOf(initialLinkedSlot?.id) }
+    var dayMenuOpen by remember { mutableStateOf(false) }
+    var slotMenuOpen by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var reminderMinutes by remember(item) {
         val diff = item?.reminderAt?.let { (item.occursAt - it) / 60_000 }
@@ -276,6 +288,8 @@ private fun AgendaEditorDialog(
     val parsedTime = if (allDay) LocalTime.of(9, 0) else runCatching { LocalTime.parse(time) }.getOrNull()
     val occursAt = parsedTime?.let { selectedDate.atTime(it).atZone(zone).toInstant().toEpochMilli() }
     val courseMap = courses.associateBy { it.id }
+    val linkedDaySlots = slots.filter { it.dayOfWeek == linkedDay }.sortedBy { it.startMinutes }
+    val linkedSlot = slots.firstOrNull { it.id == linkedSlotId }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -322,20 +336,62 @@ private fun AgendaEditorDialog(
                         }
                     }
                 }
-                if (slots.isNotEmpty()) {
-                    item {
-                        Text("連結課堂", style = MaterialTheme.typography.labelLarge)
-                        Text("可複選", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            slots.sortedWith(compareBy({ it.dayOfWeek }, { it.startMinutes })).forEach { slot ->
-                                val course = courseMap[slot.courseId]
-                                FilterChip(
-                                    selected = slot.id in linkedSlots,
-                                    onClick = {
-                                        linkedSlots = if (slot.id in linkedSlots) linkedSlots - slot.id else linkedSlots + slot.id
-                                    },
-                                    label = { Text("${course?.name ?: "課程"} · 週${agendaDayLabels[slot.dayOfWeek - 1]}") },
+                item {
+                    Text("連結課堂", style = MaterialTheme.typography.labelLarge)
+                    Text("選擇後會自動套用該課堂的開始時間", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Box(Modifier.weight(1f)) {
+                            OutlinedButton(
+                                onClick = { dayMenuOpen = true },
+                                enabled = slots.isNotEmpty(),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text("週${agendaDayLabels[linkedDay - 1]}")
+                                Spacer(Modifier.weight(1f))
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                            }
+                            DropdownMenu(expanded = dayMenuOpen, onDismissRequest = { dayMenuOpen = false }) {
+                                agendaDayLabels.forEachIndexed { index, label ->
+                                    DropdownMenuItem(
+                                        text = { Text("週$label") },
+                                        onClick = {
+                                            linkedDay = index + 1
+                                            if (linkedSlotId !in slots.filter { it.dayOfWeek == linkedDay }.map { it.id }) {
+                                                linkedSlotId = null
+                                            }
+                                            dayMenuOpen = false
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                        Box(Modifier.weight(1.4f)) {
+                            OutlinedButton(
+                                onClick = { slotMenuOpen = true },
+                                enabled = linkedDaySlots.isNotEmpty(),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text(
+                                    linkedSlot?.let { courseMap[it.courseId]?.name ?: "課程" }
+                                        ?: if (linkedDaySlots.isEmpty()) "當天無課堂" else "選擇課堂",
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
+                                Spacer(Modifier.weight(1f))
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                            }
+                            DropdownMenu(expanded = slotMenuOpen, onDismissRequest = { slotMenuOpen = false }) {
+                                linkedDaySlots.forEach { slot ->
+                                    DropdownMenuItem(
+                                        text = { Text("${courseMap[slot.courseId]?.name ?: "課程"} · ${String.format("%02d:%02d", slot.startMinutes / 60, slot.startMinutes % 60)}") },
+                                        onClick = {
+                                            linkedSlotId = slot.id
+                                            time = String.format("%02d:%02d", slot.startMinutes / 60, slot.startMinutes % 60)
+                                            allDay = false
+                                            slotMenuOpen = false
+                                        },
+                                    )
+                                }
                             }
                         }
                     }
@@ -367,7 +423,7 @@ private fun AgendaEditorDialog(
                         status = item?.status ?: AgendaStatus.PENDING,
                         notes = notes.trim(),
                         reminderAt = if (reminderMinutes == 0) null else timestamp - reminderMinutes * 60_000L,
-                        linkedSlotIds = linkedSlots.toList(),
+                        linkedSlotIds = listOfNotNull(linkedSlotId),
                         version = item?.version ?: 0,
                     ))
                 },

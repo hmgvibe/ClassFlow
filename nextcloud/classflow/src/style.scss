@@ -92,8 +92,7 @@
 }
 
 .toolbar-actions,
-.day-selector,
-.link-grid {
+.day-selector {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -102,8 +101,7 @@
 .day-selector { flex: 1 1 auto; }
 .toolbar-actions { flex: 0 0 auto; }
 
-.day-selector button,
-.link-grid button {
+.day-selector button {
   min-width: 64px;
   min-height: 36px;
   padding: 0 14px;
@@ -116,14 +114,12 @@
   cursor: pointer;
 }
 
-.day-selector button:focus-visible,
-.link-grid button:focus-visible {
+.day-selector button:focus-visible {
   outline: 2px solid var(--color-primary-element);
   outline-offset: 2px;
 }
 
-.day-selector button.selected,
-.link-grid button.selected {
+.day-selector button.selected {
   border-color: var(--color-primary-element);
   background: var(--color-primary-element-light);
   color: var(--color-main-text);
@@ -234,6 +230,8 @@ input[type='datetime-local'] {
 }
 .dialog-form label { display: grid; gap: 6px; }
 .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.link-selectors { display: grid; grid-template-columns: minmax(120px, .8fr) minmax(180px, 1.2fr); gap: 12px; margin-top: 10px; }
+.field-help { display: block; margin-top: 4px; color: var(--color-text-maxcontrast); }
 .automatic-color { display: flex; align-items: center; gap: 12px; padding: 4px 2px; }
 .automatic-color > span:last-child { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
 .automatic-color small { color: var(--color-text-maxcontrast); }
@@ -251,7 +249,8 @@ input[type='datetime-local'] {
 }
 
 @media (max-width: 440px) {
-  .two-columns { grid-template-columns: 1fr; }
+  .two-columns,
+  .link-selectors { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

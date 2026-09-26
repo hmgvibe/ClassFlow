@@ -18,6 +18,7 @@ const selectedDay = ref(Math.min(new Date().getDay() || 7, 7))
 const query = ref('')
 const typeFilter = ref<AgendaType | 'all'>('all')
 const showCompleted = ref(false)
+const agendaLinkDay = ref(1)
 
 const dialog = ref<'course' | 'slot' | 'agenda' | null>(null)
 const courseForm = reactive<Course>({ id: '', name: '', teacher: '', room: '', colorKey: 0, notes: '', version: 0, updatedAt: 0 })
@@ -56,6 +57,9 @@ const typeLabels: Record<AgendaType, string> = { homework: '作業', exam: '考�
 
 const displayCourses = computed(() => distinctCourseColors(state.value.courses))
 const courseMap = computed(() => new Map(displayCourses.value.map((course) => [course.id, course])))
+const agendaLinkSlots = computed(() => state.value.slots
+	.filter((slot) => slot.dayOfWeek === agendaLinkDay.value)
+	.sort((left, right) => left.startMinutes - right.startMinutes))
 const filteredAgenda = computed(() => state.value.agendaItems
 	.filter((item) => showCompleted.value || item.status === 'pending')
 	.filter((item) => typeFilter.value === 'all' || item.type === typeFilter.value)
@@ -248,6 +252,12 @@ function editSlot(slot?: TimetableSlot) {
 
 function editAgenda(item?: AgendaItem) {
 	Object.assign(agendaForm, item ? { ...item, linkedSlotIds: [...item.linkedSlotIds] } : { id: crypto.randomUUID(), type: 'homework', title: '', occursAt: Date.now() + 86400000, endsAt: null, allDay: false, status: 'pending', notes: '', reminderAt: null, linkedSlotIds: [], version: 0, updatedAt: 0 })
+	const linkedSlot = state.value.slots
+		.slice()
+		.sort((left, right) => left.dayOfWeek - right.dayOfWeek || left.startMinutes - right.startMinutes)
+		.find((slot) => agendaForm.linkedSlotIds.includes(slot.id))
+	agendaLinkDay.value = linkedSlot?.dayOfWeek ?? (new Date(agendaForm.occursAt).getDay() || 7)
+	agendaForm.linkedSlotIds = linkedSlot ? [linkedSlot.id] : []
 	dialog.value = 'agenda'
 }
 
@@ -274,10 +284,23 @@ function setAgendaDate(value: string) {
 	}
 }
 
-function toggleLinkedSlot(id: string) {
-	agendaForm.linkedSlotIds = agendaForm.linkedSlotIds.includes(id)
-		? agendaForm.linkedSlotIds.filter((value) => value !== id)
-		: [...agendaForm.linkedSlotIds, id]
+function setAgendaLinkDay(day: number) {
+	agendaLinkDay.value = day
+	if (!state.value.slots.some((slot) => slot.dayOfWeek === day && agendaForm.linkedSlotIds.includes(slot.id))) {
+		agendaForm.linkedSlotIds = []
+	}
+}
+
+function selectAgendaSlot(id: string) {
+	agendaForm.linkedSlotIds = id ? [id] : []
+	const slot = state.value.slots.find((value) => value.id === id)
+	if (!slot) {
+		return
+	}
+	const date = new Date(agendaForm.occursAt)
+	date.setHours(Math.floor(slot.startMinutes / 60), slot.startMinutes % 60, 0, 0)
+	agendaForm.occursAt = date.getTime()
+	agendaForm.allDay = false
 }
 
 function dateHeading(value: string) {
@@ -421,7 +444,7 @@ function message(reason: unknown) {
 					✓
 				</div>
 				<h2>目前沒有符合條件的日程</h2>
-				<p>建立作業、考試或活動，也可以連結到一個以上的課堂。</p>
+				<p>建立作業、考試或活動，也可以連結到課堂。</p>
 				<NcButton variant="primary" @click="editAgenda()">
 					新增日程
 				</NcButton>
@@ -518,16 +541,25 @@ function message(reason: unknown) {
 				<label><span class="field-label">日期與時間</span><input type="datetime-local" :value="agendaInputDate(agendaForm)" @input="setAgendaDate(($event.target as HTMLInputElement).value)"></label>
 				<label class="check"><input v-model="agendaForm.allDay" type="checkbox"> 全天</label>
 				<NcTextField v-model="agendaForm.notes" label="備註（選填）" />
-				<div v-if="state.slots.length">
-					<span class="field-label">連結課堂（可複選）</span>
-					<div class="link-grid">
-						<button
-							v-for="slot in state.slots"
-							:key="slot.id"
-							:class="{ selected: agendaForm.linkedSlotIds.includes(slot.id) }"
-							@click="toggleLinkedSlot(slot.id)">
-							{{ courseMap.get(slot.courseId)?.name }} · {{ days[slot.dayOfWeek - 1] }}
-						</button>
+				<div>
+					<span class="field-label">連結課堂</span>
+					<small class="field-help">選擇後會自動套用該課堂的開始時間</small>
+					<div class="link-selectors">
+						<label>
+							<span class="field-label">星期</span>
+							<select :value="agendaLinkDay" :disabled="!state.slots.length" @change="setAgendaLinkDay(Number(($event.target as HTMLSelectElement).value))">
+								<option v-for="(day, index) in days" :key="day" :value="index + 1">{{ day }}</option>
+							</select>
+						</label>
+						<label>
+							<span class="field-label">課堂</span>
+							<select :value="agendaForm.linkedSlotIds[0] ?? ''" :disabled="!agendaLinkSlots.length" @change="selectAgendaSlot(($event.target as HTMLSelectElement).value)">
+								<option value="">{{ agendaLinkSlots.length ? '選擇課堂' : '當天沒有課堂' }}</option>
+								<option v-for="slot in agendaLinkSlots" :key="slot.id" :value="slot.id">
+									{{ courseMap.get(slot.courseId)?.name }} · {{ time(slot.startMinutes) }}
+								</option>
+							</select>
+						</label>
 					</div>
 				</div>
 			</div>
