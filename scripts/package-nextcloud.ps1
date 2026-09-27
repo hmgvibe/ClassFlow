@@ -5,7 +5,13 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $projectRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $source = Join-Path $projectRoot 'nextcloud\classflow'
 $staging = Join-Path $projectRoot 'build\nextcloud-package\classflow'
-$archive = Join-Path $projectRoot 'build\ClassFlow-Nextcloud-v0.1.0.zip'
+$appInfoPath = Join-Path $source 'appinfo\info.xml'
+[xml]$appInfo = Get-Content -LiteralPath $appInfoPath
+$versionName = [string]$appInfo.info.version
+if ([string]::IsNullOrWhiteSpace($versionName)) {
+    throw "Unable to determine the Nextcloud app version from $appInfoPath"
+}
+$archive = Join-Path $projectRoot "build\ClassFlow-Nextcloud-v$versionName.zip"
 
 if (Test-Path $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $staging | Out-Null

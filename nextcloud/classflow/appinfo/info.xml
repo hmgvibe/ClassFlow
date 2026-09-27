@@ -5,7 +5,7 @@
     <name>ClassFlow</name>
     <summary>課表、作業、考試與活動管理</summary>
     <description><![CDATA[在 Nextcloud 與 Android 之間同步管理固定每週課表、作業、考試與學校活動。]]></description>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
     <licence>agpl</licence>
     <author mail="">Ray</author>
     <namespace>ClassFlow</namespace>

@@ -199,7 +199,7 @@ class NextcloudApi(
     }
 
     private companion object {
-        const val USER_AGENT = "ClassFlow-Android/0.1.0"
+        const val USER_AGENT = "ClassFlow-Android/1.0.0"
         val JSON = "application/json; charset=utf-8".toMediaType()
     }
 }

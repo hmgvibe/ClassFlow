@@ -4,16 +4,22 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.ImageProvider
+import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import androidx.glance.background
 import androidx.glance.action.clickable
 import androidx.glance.color.ColorProvider
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
@@ -21,39 +27,57 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.appwidget.action.actionStartActivity
 import com.ray.classflow.ClassFlowApplication
 import com.ray.classflow.MainActivity
+import com.ray.classflow.R
 import com.ray.classflow.data.db.AgendaWithLinks
-import com.ray.classflow.data.db.CourseEntity
-import com.ray.classflow.data.db.TimetableSlotEntity
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+internal val WidgetPrimary = ColorProvider(day = Color(0xFF006B63), night = Color(0xFF81D5CC))
+internal val WidgetText = ColorProvider(day = Color(0xFF191C1B), night = Color(0xFFE1E3E1))
+internal val WidgetMuted = ColorProvider(day = Color(0xFF52615E), night = Color(0xFFB7C7C3))
+private val AgendaAccent = Color(0xFFC15C48)
+
 private data class WidgetData(
-    val courses: List<CourseEntity>,
-    val slots: List<TimetableSlotEntity>,
     val agenda: List<AgendaWithLinks>,
 )
 
+private data class WidgetEntry(
+    val leading: String,
+    val title: String,
+    val accent: Color,
+)
+
 class ClassFlowWidget : GlanceAppWidget() {
+    override val sizeMode: SizeMode = SizeMode.Responsive(
+        setOf(
+            DpSize(250.dp, 110.dp),
+            DpSize(250.dp, 180.dp),
+            DpSize(320.dp, 250.dp),
+        ),
+    )
+
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val app = context.applicationContext as ClassFlowApplication
         val data = WidgetData(
-            courses = app.database.dao().allCourses(),
-            slots = app.database.dao().allSlots(),
             agenda = app.database.dao().allAgenda(),
         )
         provideContent { WidgetContent(context, data) }
     }
 
     companion object {
-        suspend fun updateAll(context: Context) = ClassFlowWidget().updateAll(context)
+        suspend fun updateAll(context: Context) {
+            ClassFlowWidget().updateAll(context)
+            TimetableWidget().updateAll(context)
+        }
     }
 }
 
@@ -64,52 +88,118 @@ class ClassFlowWidgetReceiver : GlanceAppWidgetReceiver() {
 @Composable
 private fun WidgetContent(context: Context, data: WidgetData) {
     val today = LocalDate.now()
-    val courseMap = data.courses.associateBy { it.id }
-    val todaySlots = data.slots.filter { it.dayOfWeek == today.dayOfWeek.value }.take(3)
-    val upcoming = data.agenda.filter { it.agenda.status == "PENDING" && it.agenda.occursAt >= System.currentTimeMillis() }
+    val now = System.currentTimeMillis()
+    val widgetHeight = LocalSize.current.height
+    val maxRows = when {
+        widgetHeight < 145.dp -> 2
+        widgetHeight < 220.dp -> 5
+        else -> 6
+    }
+    val upcoming = data.agenda
+        .filter { it.agenda.status == "PENDING" && it.agenda.occursAt >= now }
         .sortedBy { it.agenda.occursAt }
-        .take(2)
+    val entries = widgetEntries(today, upcoming, maxRows)
+    val summary = if (upcoming.isEmpty()) "目前無待辦" else "${upcoming.size} 項待辦"
 
-    Column(
+    Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(ColorProvider(day = Color(0xFFF7FAF9), night = Color(0xFF17201F)))
-            .clickable(actionStartActivity(Intent(context, MainActivity::class.java)))
-            .padding(16.dp),
+            .padding(3.dp),
     ) {
-        Row(modifier = GlanceModifier.fillMaxWidth()) {
-            Text(
-                text = "今天 · ${today.monthValue}/${today.dayOfMonth}",
-                style = TextStyle(
-                    color = ColorProvider(day = Color(0xFF123F3B), night = Color(0xFFE2F3F0)),
-                    fontWeight = FontWeight.Bold,
-                ),
-            )
-        }
-        Spacer(GlanceModifier.height(10.dp))
-        if (todaySlots.isEmpty() && upcoming.isEmpty()) {
-            Text(
-                "今天沒有課程或待辦",
-                style = TextStyle(color = ColorProvider(day = Color(0xFF60706E), night = Color(0xFFAAB9B7))),
-            )
-        } else {
-            todaySlots.forEach { slot ->
-                val course = courseMap[slot.courseId]
+        Column(
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .background(ImageProvider(R.drawable.widget_background))
+                .clickable(actionStartActivity(Intent(context, MainActivity::class.java)))
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+        ) {
+            Row(modifier = GlanceModifier.fillMaxWidth()) {
                 Text(
-                    text = "%02d:%02d  %s".format(slot.startMinutes / 60, slot.startMinutes % 60, course?.name ?: "課程"),
-                    style = TextStyle(color = ColorProvider(day = Color(0xFF1C2E2C), night = Color(0xFFF0F5F4))),
+                    text = "近期日程",
+                    modifier = GlanceModifier.defaultWeight(),
+                    style = TextStyle(
+                        color = WidgetText,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    maxLines = 1,
                 )
-                Spacer(GlanceModifier.height(4.dp))
-            }
-            upcoming.forEach { row ->
-                val date = Instant.ofEpochMilli(row.agenda.occursAt).atZone(ZoneId.systemDefault()).toLocalDate()
                 Text(
-                    text = "${date.format(DateTimeFormatter.ofPattern("M/d"))}  ${row.agenda.title}",
-                    style = TextStyle(color = ColorProvider(day = Color(0xFF52625F), night = Color(0xFFB5C5C2))),
+                    text = summary,
+                    style = TextStyle(
+                        color = WidgetMuted,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                    ),
+                    maxLines = 1,
                 )
-                Spacer(GlanceModifier.height(4.dp))
+            }
+            Spacer(GlanceModifier.height(8.dp))
+            if (entries.isEmpty()) {
+                Text(
+                    text = "目前沒有即將到期的日程",
+                    style = TextStyle(color = WidgetText, fontSize = 14.sp, fontWeight = FontWeight.Medium),
+                )
+                Spacer(GlanceModifier.height(3.dp))
+                Text(
+                    text = "新增作業、考試或活動後會顯示在這裡",
+                    style = TextStyle(color = WidgetMuted, fontSize = 12.sp),
+                )
+            } else {
+                entries.forEach { entry ->
+                    WidgetEntryRow(entry)
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun WidgetEntryRow(entry: WidgetEntry) {
+    Row(
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .height(28.dp)
+            .padding(vertical = 3.dp),
+    ) {
+        Box(
+            modifier = GlanceModifier
+                .width(3.dp)
+                .height(22.dp)
+                .background(ColorProvider(day = entry.accent, night = entry.accent)),
+        ) {}
+        Spacer(GlanceModifier.width(8.dp))
+        Text(
+            text = entry.leading,
+            modifier = GlanceModifier.width(48.dp),
+            style = TextStyle(color = WidgetPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold),
+            maxLines = 1,
+        )
+        Text(
+            text = entry.title,
+            modifier = GlanceModifier.defaultWeight(),
+            style = TextStyle(color = WidgetText, fontSize = 13.sp, fontWeight = FontWeight.Medium),
+            maxLines = 1,
+        )
+    }
+}
+
+private fun widgetEntries(
+    today: LocalDate,
+    upcoming: List<AgendaWithLinks>,
+    maxRows: Int,
+): List<WidgetEntry> {
+    return upcoming.take(maxRows).map { item ->
+        val date = Instant.ofEpochMilli(item.agenda.occursAt).atZone(ZoneId.systemDefault()).toLocalDate()
+        WidgetEntry(
+            leading = when (date) {
+                today -> "今天"
+                today.plusDays(1) -> "明天"
+                else -> date.format(DateTimeFormatter.ofPattern("M/d"))
+            },
+            title = item.agenda.title,
+            accent = AgendaAccent,
+        )
     }
 }
 

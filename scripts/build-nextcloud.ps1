@@ -2,6 +2,7 @@ $ErrorActionPreference = 'Stop'
 $appDir = Join-Path $PSScriptRoot '..\nextcloud\classflow'
 $nodeDir = 'D:\DevTools\Node\node-v24.20.0-win-x64'
 $env:Path = "$nodeDir;$env:Path"
+$env:CI = 'true'
 
 Push-Location $appDir
 try {

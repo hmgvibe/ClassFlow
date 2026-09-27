@@ -84,7 +84,7 @@ fun SettingsSheet(
             ) {
                 Column {
                     Text("ClassFlow", fontWeight = FontWeight.Medium)
-                    Text("版本 0.1.0", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("版本 1.0.0", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Text("Android 8.0+", style = MaterialTheme.typography.bodySmall)
             }

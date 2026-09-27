@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/widget_agenda_description"
-    android:initialLayout="@layout/classflow_widget_loading"
+    android:description="@string/widget_timetable_description"
+    android:initialLayout="@layout/timetable_widget_loading"
     android:minWidth="250dp"
     android:minHeight="110dp"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="4"
     android:targetCellHeight="2"
-    android:previewLayout="@layout/classflow_widget_loading"
-    android:updatePeriodMillis="3600000"
+    android:previewLayout="@layout/timetable_widget_loading"
+    android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen" />

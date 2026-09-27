@@ -109,6 +109,7 @@ class ClassFlowRepository(
                 updatedAt = now,
             )))
         }
+        ClassFlowWidget.updateAll(context)
         scheduleImmediateSync()
     }
 
@@ -117,6 +118,7 @@ class ClassFlowRepository(
             dao.deleteCourse(course.id)
             queue("course", course.id, "delete", course.version, null)
         }
+        ClassFlowWidget.updateAll(context)
         scheduleImmediateSync()
     }
 
@@ -136,6 +138,7 @@ class ClassFlowRepository(
                 updatedAt = now,
             )))
         }
+        ClassFlowWidget.updateAll(context)
         scheduleImmediateSync()
     }
 
@@ -144,6 +147,7 @@ class ClassFlowRepository(
             dao.deleteSlot(slot.id)
             queue("slot", slot.id, "delete", slot.version, null)
         }
+        ClassFlowWidget.updateAll(context)
         scheduleImmediateSync()
     }
 
