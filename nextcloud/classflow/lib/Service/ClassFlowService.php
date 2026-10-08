@@ -8,7 +8,7 @@ use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 final class ClassFlowService {
-    private const TYPES = ['course', 'slot', 'agenda'];
+    private const TYPES = ['course', 'slot', 'agenda', 'study'];
     private const OPERATIONS = ['upsert', 'delete'];
     private const AGENDA_TYPES = ['homework', 'exam', 'activity', 'other'];
     private const AGENDA_STATUSES = ['pending', 'completed'];
@@ -31,6 +31,7 @@ final class ClassFlowService {
             'courses' => $courses,
             'slots' => $slots,
             'agendaItems' => $agenda,
+            'studyPlans' => array_map(fn (array $row): array => $this->studyResponse($row), $this->rows('classflow_studies', $userId, ['starts_at' => 'ASC'])),
             'serverTime' => (int)round(microtime(true) * 1000),
         ];
     }
@@ -158,6 +159,7 @@ final class ClassFlowService {
             'course' => $this->courseValues($payload),
             'slot' => $this->slotValues($userId, $payload),
             'agenda' => $this->agendaValues($payload),
+            'study' => $this->studyValues($userId, $payload, $current),
         };
         $values['version'] = $version;
         $values['updated_at'] = $now;
@@ -237,6 +239,40 @@ final class ClassFlowService {
             'status' => $status,
             'notes' => $this->optionalString($payload, 'notes', 10000),
             'reminder_at' => isset($payload['reminderAt']) ? (int)$payload['reminderAt'] : null,
+        ];
+    }
+
+    /** @param array<string, mixed> $payload @param array<string, mixed>|null $current @return array<string, mixed> */
+    private function studyValues(string $userId, array $payload, ?array $current): array {
+        $startsAt = (int)($payload['startsAt'] ?? 0);
+        $endsAt = (int)($payload['endsAt'] ?? 0);
+        if ($startsAt <= 0 || $endsAt <= $startsAt) {
+            throw new \InvalidArgumentException('Invalid study date range');
+        }
+        $courseId = isset($payload['linkedCourseId']) ? $this->uuid($payload, 'linkedCourseId') : null;
+        $agendaId = isset($payload['linkedAgendaId']) ? $this->uuid($payload, 'linkedAgendaId') : null;
+        if ($courseId !== null && $agendaId !== null) {
+            throw new \InvalidArgumentException('A study plan can link to only one target');
+        }
+        if ($courseId !== null && $this->findEntity($userId, 'course', $courseId) === null && ($current['course_uuid'] ?? null) !== $courseId) {
+            throw new \InvalidArgumentException('Study link does not exist');
+        }
+        if ($agendaId !== null) {
+            $agenda = $this->findEntity($userId, 'agenda', $agendaId);
+            if ($agenda === null && ($current['agenda_uuid'] ?? null) !== $agendaId) {
+                throw new \InvalidArgumentException('Study link does not exist');
+            }
+            if ($agenda !== null && !in_array($agenda['type'], ['homework', 'exam'], true)) {
+                throw new \InvalidArgumentException('Study links must be homework or exam');
+            }
+        }
+        return [
+            'title' => $this->requiredString($payload, 'title', 255),
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
+            'course_uuid' => $courseId,
+            'agenda_uuid' => $agendaId,
+            'notes' => $this->optionalString($payload, 'notes', 10000),
         ];
     }
 
@@ -338,6 +374,7 @@ final class ClassFlowService {
                 'course' => $this->courseResponse($current),
                 'slot' => $this->slotResponse($current),
                 'agenda' => $this->agendaResponse($current, $this->linksByAgenda($userId)[(string)$current['uuid']] ?? []),
+                'study' => $this->studyResponse($current),
             };
         }
         return ['operationId' => $operationId, 'server' => $server];
@@ -348,6 +385,7 @@ final class ClassFlowService {
             'course' => 'classflow_courses',
             'slot' => 'classflow_slots',
             'agenda' => 'classflow_agenda',
+            'study' => 'classflow_studies',
             default => throw new \InvalidArgumentException('Unknown entity type'),
         };
     }
@@ -405,6 +443,21 @@ final class ClassFlowService {
             throw new \InvalidArgumentException("Invalid $key");
         }
         return $value;
+    }
+
+    /** @param array<string, mixed> $row @return array<string, mixed> */
+    private function studyResponse(array $row): array {
+        return [
+            'id' => (string)$row['uuid'],
+            'title' => (string)$row['title'],
+            'startsAt' => (int)$row['starts_at'],
+            'endsAt' => (int)$row['ends_at'],
+            'linkedCourseId' => $row['course_uuid'] === null ? null : (string)$row['course_uuid'],
+            'linkedAgendaId' => $row['agenda_uuid'] === null ? null : (string)$row['agenda_uuid'],
+            'notes' => (string)($row['notes'] ?? ''),
+            'version' => (int)$row['version'],
+            'updatedAt' => (int)$row['updated_at'],
+        ];
     }
 
     /** @param array<string, mixed> $data */

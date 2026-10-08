@@ -1,7 +1,12 @@
+param([ValidateSet('cloud', 'offline')][string]$Flavor = 'cloud')
+
 . "$PSScriptRoot\android-env.ps1"
 $adb = Join-Path $env:ANDROID_HOME 'platform-tools\adb.exe'
-& "$PSScriptRoot\..\gradlew.bat" :android:app:installDebug
+$variant = [Globalization.CultureInfo]::InvariantCulture.TextInfo.ToTitleCase($Flavor) + 'Debug'
+$applicationId = if ($Flavor -eq 'offline') { 'com.ray.classflow.offline.debug' } else { 'com.ray.classflow.debug' }
+& "$PSScriptRoot\..\gradlew.bat" ":android:app:install$variant"
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-& $adb shell monkey -p com.ray.classflow.debug -c android.intent.category.LAUNCHER 1 | Out-Null
-Write-Host 'ClassFlow 已安裝並啟動。'
+& $adb shell monkey -p $applicationId -c android.intent.category.LAUNCHER 1 | Out-Null
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+Write-Host "ClassFlow ($Flavor) 已安裝並啟動。"
 

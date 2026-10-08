@@ -43,13 +43,26 @@ export interface ClassFlowState {
 	slots: TimetableSlot[]
 	agendaItems: AgendaItem[]
 	serverTime: number
+	studyPlans?: StudyPlan[]
+}
+
+export interface StudyPlan {
+	id: string
+	title: string
+	startsAt: number
+	endsAt: number
+	linkedCourseId: string | null
+	linkedAgendaId: string | null
+	notes: string
+	version: number
+	updatedAt: number
 }
 
 export interface Mutation {
 	operationId: string
-	entityType: 'course' | 'slot' | 'agenda'
+	entityType: 'course' | 'slot' | 'agenda' | 'study'
 	entityId: string
 	operation: 'upsert' | 'delete'
 	baseVersion: number
-	payload: Course | TimetableSlot | AgendaItem | null
+	payload: Course | TimetableSlot | AgendaItem | StudyPlan | null
 }

@@ -26,7 +26,7 @@ final class ApiController extends OCSController {
     public function capabilities(): DataResponse {
         return new DataResponse([
             'apiVersion' => 1,
-            'appVersion' => '1.0.0',
+            'appVersion' => '2.0.0',
             'features' => ['courses', 'fixedWeeklyTimetable', 'agenda', 'reminders', 'batchSync'],
         ]);
     }

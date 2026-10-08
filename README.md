@@ -6,12 +6,16 @@ ClassFlow 是一套以 Nextcloud 為同步中心的個人課表與校園日程�
 
 - 課程與固定每週課表
 - 作業、考試、活動與其他日程
+- 學習計劃：五日日期欄、上午／下午／晚上分組，可連結課程、作業或考試並查看時間提示
 - 日程連結多個課堂
 - Android 離線資料庫與背景同步
+- 獨立 Android 離線版：可與原版同時安裝，資料互不共用，不需要 Nextcloud 或網路權限
 - Nextcloud Login Flow v2
 - 本機提醒、搜尋、篩選與桌面小工具
 - Nextcloud 網頁端完整管理
 - 淺色與深色 Android UI
+
+學習計劃的時間需自行安排，連結對象的時間僅供參考。2.0.0 的資料遷移、升級與驗證方式見 [學習計劃說明](docs/study-plans.md)。
 
 ## Android 命令列開發
 
@@ -25,8 +29,12 @@ ClassFlow 是一套以 Nextcloud 為同步中心的個人課表與校園日程�
 只建置與測試：
 
 ```powershell
-.\gradlew.bat :android:app:testDebugUnitTest :android:app:lintDebug :android:app:assembleDebug
+.\gradlew.bat :android:app:testCloudDebugUnitTest :android:app:lintCloudDebug :android:app:assembleCloudDebug
 ```
+
+獨立離線版使用 `offline` 變體，開發安裝可執行
+`.\scripts\install-android.ps1 -Flavor offline`。兩版的識別、驗證與日後打包方式見
+[離線版說明](docs/offline-edition.md)。
 
 ## Nextcloud App
 

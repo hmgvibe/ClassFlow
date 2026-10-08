@@ -21,14 +21,16 @@ class ClassFlowApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        getSystemService(NotificationManager::class.java).createNotificationChannel(
-            NotificationChannel(
-                REMINDER_CHANNEL,
-                "課業提醒",
-                NotificationManager.IMPORTANCE_DEFAULT,
-            ).apply { description = "作業、考試與活動提醒" },
-        )
-        repository.schedulePeriodicSync()
+        getSystemService(NotificationManager::class.java)
+            .createNotificationChannel(
+                NotificationChannel(
+                        REMINDER_CHANNEL,
+                        "課業提醒",
+                        NotificationManager.IMPORTANCE_DEFAULT,
+                    )
+                    .apply { description = "作業、考試與活動提醒" }
+            )
+        if (BuildConfig.CLOUD_SYNC_ENABLED) repository.schedulePeriodicSync()
     }
 
     companion object {

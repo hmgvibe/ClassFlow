@@ -3,9 +3,9 @@
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>classflow</id>
     <name>ClassFlow</name>
-    <summary>課表、作業、考試與活動管理</summary>
-    <description><![CDATA[在 Nextcloud 與 Android 之間同步管理固定每週課表、作業、考試與學校活動。]]></description>
-    <version>1.0.0</version>
+    <summary>課表、日程與學習計劃管理</summary>
+    <description><![CDATA[在 Nextcloud 與 Android 之間同步管理固定每週課表、作業、考試、學校活動與學習計劃。]]></description>
+    <version>2.0.0</version>
     <licence>agpl</licence>
     <author mail="">Ray</author>
     <namespace>ClassFlow</namespace>

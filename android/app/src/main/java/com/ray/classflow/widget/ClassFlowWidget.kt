@@ -1,5 +1,7 @@
 package com.ray.classflow.widget
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
@@ -12,10 +14,10 @@ import androidx.glance.GlanceModifier
 import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
-import androidx.glance.appwidget.updateAll
 import androidx.glance.background
 import androidx.glance.action.clickable
 import androidx.glance.color.ColorProvider
@@ -75,8 +77,17 @@ class ClassFlowWidget : GlanceAppWidget() {
 
     companion object {
         suspend fun updateAll(context: Context) {
-            ClassFlowWidget().updateAll(context)
-            TimetableWidget().updateAll(context)
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val glanceManager = GlanceAppWidgetManager(context)
+            // Use Android's receiver ownership, including after an upgrade from
+            // a release where Glance cached both widget types under one class.
+            val receivers = listOf(ClassFlowWidgetReceiver(), TimetableWidgetReceiver())
+            for (receiver in receivers) {
+                val component = ComponentName(context, receiver.javaClass)
+                for (appWidgetId in appWidgetManager.getAppWidgetIds(component)) {
+                    receiver.glanceAppWidget.update(context, glanceManager.getGlanceIdBy(appWidgetId))
+                }
+            }
         }
     }
 }

@@ -13,10 +13,23 @@ android {
         applicationId = "com.ray.classflow"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.0"
+        versionCode = 4
+        versionName = "2.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+    }
+
+    flavorDimensions += "storage"
+    productFlavors {
+        create("cloud") {
+            dimension = "storage"
+            buildConfigField("boolean", "CLOUD_SYNC_ENABLED", "true")
+        }
+        create("offline") {
+            dimension = "storage"
+            applicationIdSuffix = ".offline"
+            buildConfigField("boolean", "CLOUD_SYNC_ENABLED", "false")
+        }
     }
 
     buildTypes {
@@ -29,7 +42,10 @@ android {
             manifestPlaceholders["usesCleartextTraffic"] = "false"
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 

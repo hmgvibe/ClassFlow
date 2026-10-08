@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import type { AgendaItem, AgendaType, ClassFlowState, Course, Mutation, TimetableSlot } from './types.ts'
+import type { AgendaItem, AgendaType, ClassFlowState, Course, Mutation, StudyPlan, TimetableSlot } from './types.ts'
 
 import { computed, onMounted, reactive, ref } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcDialog from '@nextcloud/vue/components/NcDialog'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
+import StudyPlans from './StudyPlans.vue'
 import { applyMutation, loadState } from './api.ts'
 
 const emptyState = (): ClassFlowState => ({ courses: [], slots: [], agendaItems: [], serverTime: 0 })
 const state = ref<ClassFlowState>(emptyState())
-const activeTab = ref<'timetable' | 'agenda'>('timetable')
+const activeTab = ref<'timetable' | 'agenda' | 'study'>('timetable')
 const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
@@ -89,7 +90,7 @@ async function refresh() {
 	}
 }
 
-async function mutate(entityType: Mutation['entityType'], operation: Mutation['operation'], payload: Course | TimetableSlot | AgendaItem) {
+async function mutate(entityType: Mutation['entityType'], operation: Mutation['operation'], payload: Course | TimetableSlot | AgendaItem | StudyPlan): Promise<boolean> {
 	saving.value = true
 	error.value = ''
 	try {
@@ -102,8 +103,10 @@ async function mutate(entityType: Mutation['entityType'], operation: Mutation['o
 			payload: operation === 'delete' ? null : payload,
 		})
 		dialog.value = null
+		return true
 	} catch (reason) {
 		error.value = message(reason)
+		return false
 	} finally {
 		saving.value = false
 	}
@@ -325,9 +328,9 @@ function message(reason: unknown) {
 				<p class="eyebrow">
 					CLASSFLOW
 				</p>
-				<h1>{{ activeTab === 'timetable' ? '每週課表' : '日程管理' }}</h1>
+				<h1>{{ activeTab === 'timetable' ? '每週課表' : activeTab === 'agenda' ? '日程管理' : '學習計劃' }}</h1>
 				<p class="subtitle">
-					{{ activeTab === 'timetable' ? `${state.courses.length} 門課程 · ${state.slots.length} 個時段` : `${filteredAgenda.length} 個顯示中的日程` }}
+					{{ activeTab === 'timetable' ? `${state.courses.length} 門課程 · ${state.slots.length} 個時段` : activeTab === 'agenda' ? `${filteredAgenda.length} 個顯示中的日程` : '安排專注時間，循序準備作業與考試' }}
 				</p>
 			</div>
 			<NcButton variant="tertiary" :disabled="loading" @click="refresh">
@@ -341,6 +344,9 @@ function message(reason: unknown) {
 			</button>
 			<button :class="{ active: activeTab === 'agenda' }" @click="activeTab = 'agenda'">
 				日程
+			</button>
+			<button :class="{ active: activeTab === 'study' }" @click="activeTab = 'study'">
+				學習計劃
 			</button>
 		</nav>
 
@@ -422,7 +428,7 @@ function message(reason: unknown) {
 			</section>
 		</template>
 
-		<template v-else>
+		<template v-else-if="activeTab === 'agenda'">
 			<section class="toolbar agenda-tools">
 				<NcTextField v-model="query" label="搜尋標題或備註" trailingButtonIcon="close" />
 				<select v-model="typeFilter" aria-label="日程類型">
@@ -472,6 +478,13 @@ function message(reason: unknown) {
 				</div>
 			</section>
 		</template>
+
+		<StudyPlans
+			v-else
+			:state="state"
+			:saving="saving"
+			:error="error"
+			:mutate="(operation, plan) => mutate('study', operation, plan)" />
 
 		<NcDialog
 			v-if="dialog === 'course'"

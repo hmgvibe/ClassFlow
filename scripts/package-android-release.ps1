@@ -1,4 +1,5 @@
 param(
+    [ValidateSet('cloud', 'offline')][string]$Flavor = 'cloud',
     [string]$SigningProperties = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.classflow-signing\signing.properties'),
     [string]$OutputDirectory = (Join-Path $PSScriptRoot '..\build\release')
 )
@@ -45,18 +46,22 @@ if (-not $buildTools) {
 
 $zipAlign = Join-Path $buildTools.FullName 'zipalign.exe'
 $apkSigner = Join-Path $buildTools.FullName 'apksigner.bat'
-$unsignedApk = Join-Path $repositoryRoot 'android\app\build\outputs\apk\release\app-release-unsigned.apk'
+$variant = [Globalization.CultureInfo]::InvariantCulture.TextInfo.ToTitleCase($Flavor) + 'Release'
+$artifactName = if ($Flavor -eq 'offline') { 'ClassFlow-Offline' } else { 'ClassFlow' }
+$unsignedApk = Join-Path $repositoryRoot "android\app\build\outputs\apk\$Flavor\release\app-$Flavor-release-unsigned.apk"
 $resolvedOutput = [IO.Path]::GetFullPath($OutputDirectory)
-$alignedApk = Join-Path $resolvedOutput "ClassFlow-v$versionName-aligned.apk"
-$signedApk = Join-Path $resolvedOutput "ClassFlow-v$versionName.apk"
+$alignedApk = Join-Path $resolvedOutput "$artifactName-v$versionName-aligned.apk"
+$signedApk = Join-Path $resolvedOutput "$artifactName-v$versionName.apk"
 
 New-Item -ItemType Directory -Path $resolvedOutput -Force | Out-Null
 
 $env:CLASSFLOW_STORE_PASSWORD = $properties.storePassword
 $env:CLASSFLOW_KEY_PASSWORD = $properties.keyPassword
 try {
-    & (Join-Path $repositoryRoot 'gradlew.bat') :android:app:assembleRelease
+    & (Join-Path $repositoryRoot 'gradlew.bat') ":android:app:assemble$variant"
     if ($LASTEXITCODE -ne 0) { throw 'Release build failed.' }
+
+    & "$PSScriptRoot\check-widget-release.ps1" -Flavor $Flavor
 
     & $zipAlign -f -p 4 $unsignedApk $alignedApk
     if ($LASTEXITCODE -ne 0) { throw 'zipalign failed.' }

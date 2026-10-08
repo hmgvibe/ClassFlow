@@ -19,14 +19,15 @@ data class CourseEntity(
 
 @Entity(
     tableName = "timetable_slots",
-    foreignKeys = [
-        ForeignKey(
-            entity = CourseEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["courseId"],
-            onDelete = ForeignKey.CASCADE,
-        ),
-    ],
+    foreignKeys =
+        [
+            ForeignKey(
+                entity = CourseEntity::class,
+                parentColumns = ["id"],
+                childColumns = ["courseId"],
+                onDelete = ForeignKey.CASCADE,
+            )
+        ],
     indices = [Index("courseId"), Index(value = ["dayOfWeek", "startMinutes"])],
 )
 data class TimetableSlotEntity(
@@ -60,20 +61,21 @@ data class AgendaEntity(
 @Entity(
     tableName = "agenda_links",
     primaryKeys = ["agendaId", "slotId"],
-    foreignKeys = [
-        ForeignKey(
-            entity = AgendaEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["agendaId"],
-            onDelete = ForeignKey.CASCADE,
-        ),
-        ForeignKey(
-            entity = TimetableSlotEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["slotId"],
-            onDelete = ForeignKey.CASCADE,
-        ),
-    ],
+    foreignKeys =
+        [
+            ForeignKey(
+                entity = AgendaEntity::class,
+                parentColumns = ["id"],
+                childColumns = ["agendaId"],
+                onDelete = ForeignKey.CASCADE,
+            ),
+            ForeignKey(
+                entity = TimetableSlotEntity::class,
+                parentColumns = ["id"],
+                childColumns = ["slotId"],
+                onDelete = ForeignKey.CASCADE,
+            ),
+        ],
     indices = [Index("agendaId"), Index("slotId")],
 )
 data class AgendaLinkEntity(
@@ -100,11 +102,27 @@ data class AgendaWithLinks(
     @androidx.room.Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = androidx.room.Junction(
-            value = AgendaLinkEntity::class,
-            parentColumn = "agendaId",
-            entityColumn = "slotId",
-        ),
+        associateBy =
+            androidx.room.Junction(
+                value = AgendaLinkEntity::class,
+                parentColumn = "agendaId",
+                entityColumn = "slotId",
+            ),
     )
     val slots: List<TimetableSlotEntity>,
+)
+
+// Optional references: deleting a course or agenda must not delete a study plan.
+@Entity(tableName = "study_plans", indices = [Index("startsAt")])
+data class StudyPlanEntity(
+    @androidx.room.PrimaryKey val id: String,
+    val title: String,
+    val startsAt: Long,
+    val endsAt: Long,
+    val linkedCourseId: String?,
+    val linkedAgendaId: String?,
+    val notes: String,
+    val version: Long,
+    val updatedAt: Long,
+    val syncState: String,
 )

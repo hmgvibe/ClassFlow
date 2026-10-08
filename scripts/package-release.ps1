@@ -9,11 +9,12 @@ if (-not $versionMatch) {
 }
 $versionName = $versionMatch.Matches[0].Groups[1].Value
 
-if (Test-Path $releaseDirectory) {
-    Remove-Item -LiteralPath $releaseDirectory -Recurse -Force
-}
+New-Item -ItemType Directory -Path $releaseDirectory -Force | Out-Null
 
-& "$PSScriptRoot\package-android-release.ps1" -OutputDirectory $releaseDirectory
+& "$PSScriptRoot\package-android-release.ps1" -Flavor cloud -OutputDirectory $releaseDirectory
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+& "$PSScriptRoot\package-android-release.ps1" -Flavor offline -OutputDirectory $releaseDirectory
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 & "$PSScriptRoot\package-nextcloud.ps1"
@@ -22,8 +23,8 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $nextcloudPackage = Join-Path $repositoryRoot "build\ClassFlow-Nextcloud-v$versionName.zip"
 Copy-Item -LiteralPath $nextcloudPackage -Destination $releaseDirectory -Force
 
-$artifacts = Get-ChildItem -LiteralPath $releaseDirectory -File |
-    Where-Object { $_.Extension -in '.apk', '.zip' } |
+$artifactNames = @("ClassFlow-v$versionName.apk", "ClassFlow-Offline-v$versionName.apk", "ClassFlow-Nextcloud-v$versionName.zip")
+$artifacts = $artifactNames | ForEach-Object { Get-Item -LiteralPath (Join-Path $releaseDirectory $_) } |
     Sort-Object Name
 $checksumLines = foreach ($artifact in $artifacts) {
     $hash = Get-FileHash -Algorithm SHA256 -LiteralPath $artifact.FullName

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ClassFlow 離線版</string>
+    <string name="widget_agenda_name">日程 · 離線版</string>
+    <string name="widget_timetable_name">課堂 · 離線版</string>
+</resources>
