@@ -1,5 +1,7 @@
 # ClassFlow
 
+繁體中文 | [简体中文](README.zh-CN.md)
+
 ClassFlow 是一套以 Nextcloud 為同步中心的個人課表與校園日程管理工具。專案包含 Android App 與 Nextcloud 35 App，兩端都能管理固定每週課表、作業、考試及活動。
 
 ## 功能
