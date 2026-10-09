@@ -1,40 +1,42 @@
 package com.ray.classflow.model
 
+import com.ray.classflow.i18n.UiText
+
 object Validation {
-    fun studyPlan(plan: StudyPlan): String? =
+    fun studyPlan(plan: StudyPlan): UiText? =
         when {
-            plan.title.isBlank() -> "請輸入計劃標題"
-            plan.title.length > 255 -> "計劃標題不可超過 255 個字元"
-            plan.startsAt <= 0 || plan.endsAt <= plan.startsAt -> "結束時間必須晚於開始時間"
-            plan.linkedCourseId != null && plan.linkedAgendaId != null -> "請只選擇一個連結對象"
-            plan.notes.length > 10000 -> "備註不可超過 10000 個字元"
+            plan.title.isBlank() -> UiText.TEXT_B87634F0F8
+            plan.title.length > 255 -> UiText.TEXT_E97815E127
+            plan.startsAt <= 0 || plan.endsAt <= plan.startsAt -> UiText.TEXT_4888E81530
+            plan.linkedCourseId != null && plan.linkedAgendaId != null -> UiText.TEXT_B0FECE0FCD
+            plan.notes.length > 10000 -> UiText.TEXT_A87E245870
             else -> null
         }
 
-    fun course(course: Course): String? =
+    fun course(course: Course): UiText? =
         when {
-            course.name.isBlank() -> "請輸入課程名稱"
-            course.name.length > 160 -> "課程名稱不可超過 160 個字元"
+            course.name.isBlank() -> UiText.TEXT_637DE04E6B
+            course.name.length > 160 -> UiText.TEXT_77F40CBD96
             else -> null
         }
 
-    fun slot(slot: TimetableSlot): String? =
+    fun slot(slot: TimetableSlot): UiText? =
         when {
-            slot.courseId.isBlank() -> "請選擇課程"
-            slot.dayOfWeek !in 1..7 -> "星期格式不正確"
-            slot.startMinutes !in 0..1439 -> "開始時間格式不正確"
-            slot.endMinutes !in 1..1440 -> "結束時間格式不正確"
-            slot.startMinutes >= slot.endMinutes -> "結束時間必須晚於開始時間"
+            slot.courseId.isBlank() -> UiText.TEXT_4D43AA68C9
+            slot.dayOfWeek !in 1..7 -> UiText.TEXT_509C461D56
+            slot.startMinutes !in 0..1439 -> UiText.TEXT_821F7F512E
+            slot.endMinutes !in 1..1440 -> UiText.TEXT_3B85765FA0
+            slot.startMinutes >= slot.endMinutes -> UiText.TEXT_4888E81530
             else -> null
         }
 
-    fun agenda(item: AgendaItem): String? =
+    fun agenda(item: AgendaItem): UiText? =
         when {
-            item.title.isBlank() -> "請輸入日程標題"
-            item.title.length > 255 -> "日程標題不可超過 255 個字元"
-            item.occursAt <= 0L -> "日期時間格式不正確"
-            item.endsAt != null && item.endsAt < item.occursAt -> "結束時間必須晚於開始時間"
-            item.reminderAt != null && item.reminderAt > item.occursAt -> "提醒時間不可晚於日程時間"
+            item.title.isBlank() -> UiText.TEXT_66378A0754
+            item.title.length > 255 -> UiText.TEXT_BA64CE1C9E
+            item.occursAt <= 0L -> UiText.TEXT_6B7D311F06
+            item.endsAt != null && item.endsAt < item.occursAt -> UiText.TEXT_4888E81530
+            item.reminderAt != null && item.reminderAt > item.occursAt -> UiText.TEXT_31C7966BFA
             else -> null
         }
 }

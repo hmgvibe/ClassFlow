@@ -2,6 +2,8 @@ package com.ray.classflow
 
 import android.Manifest
 import android.content.Intent
+import android.content.Context
+import android.content.res.Configuration
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -19,9 +21,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ray.classflow.ui.ClassFlowApp
 import com.ray.classflow.ui.ClassFlowViewModel
 import com.ray.classflow.ui.theme.ClassFlowTheme
+import com.ray.classflow.i18n.UiText
 
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        val config = Configuration(newBase.resources.configuration)
+        config.setLocale(UiText.displayLocale(config.locales[0]))
+        super.attachBaseContext(newBase.createConfigurationContext(config))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        UiText.initialize(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {

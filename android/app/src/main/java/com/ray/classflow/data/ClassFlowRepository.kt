@@ -1,5 +1,7 @@
 package com.ray.classflow.data
 
+import com.ray.classflow.i18n.UiText
+
 import android.content.Context
 import androidx.room.withTransaction
 import androidx.work.Constraints
@@ -104,14 +106,14 @@ class ClassFlowRepository(
     fun clearPendingLogin() = credentials.clearPendingLogin()
 
     suspend fun beginLogin(serverUrl: String): LoginSession {
-        check(syncEnabled) { "離線版不支援 Nextcloud 連線" }
+        check(syncEnabled) { UiText.TEXT_EC0B942262.text() }
         return api.beginLogin(serverUrl).also {
             credentials.writePendingLogin(it)
         }
     }
 
     suspend fun finishLogin(session: LoginSession): Account {
-        check(syncEnabled) { "離線版不支援 Nextcloud 連線" }
+        check(syncEnabled) { UiText.TEXT_EC0B942262.text() }
         val account = api.awaitLogin(session)
         credentials.write(account)
         credentials.clearPendingLogin()
@@ -126,7 +128,7 @@ class ClassFlowRepository(
     }
 
     suspend fun saveCourse(course: Course) = syncMutex.withLock {
-        Validation.course(course)?.let { throw IllegalArgumentException(it) }
+        Validation.course(course)?.let { throw IllegalArgumentException(it.text()) }
         val now = System.currentTimeMillis()
         val pending = course.copy(syncState = SyncState.forLocalWrite(syncEnabled))
         database.withTransaction {
@@ -164,7 +166,7 @@ class ClassFlowRepository(
     }
 
     suspend fun saveSlot(slot: TimetableSlot) = syncMutex.withLock {
-        Validation.slot(slot)?.let { throw IllegalArgumentException(it) }
+        Validation.slot(slot)?.let { throw IllegalArgumentException(it.text()) }
         val now = System.currentTimeMillis()
         database.withTransaction {
             dao.upsertSlot(
@@ -203,7 +205,7 @@ class ClassFlowRepository(
     }
 
     suspend fun saveAgenda(item: AgendaItem) = syncMutex.withLock {
-        Validation.agenda(item)?.let { throw IllegalArgumentException(it) }
+        Validation.agenda(item)?.let { throw IllegalArgumentException(it.text()) }
         val now = System.currentTimeMillis()
         database.withTransaction {
             dao.upsertAgenda(
@@ -327,7 +329,7 @@ class ClassFlowRepository(
     }
 
     suspend fun saveStudyPlan(plan: StudyPlan) = syncMutex.withLock {
-        Validation.studyPlan(plan)?.let { throw IllegalArgumentException(it) }
+        Validation.studyPlan(plan)?.let { throw IllegalArgumentException(it.text()) }
         val now = System.currentTimeMillis()
         database.withTransaction {
             dao.upsertStudyPlan(
@@ -347,28 +349,28 @@ class ClassFlowRepository(
     }
 
     suspend fun resolveConflict(item: ConflictItem, choice: ConflictChoice) {
-        check(syncEnabled) { "離線版沒有雲端同步衝突" }
+        check(syncEnabled) { UiText.TEXT_8EF94D90EF.text() }
         syncMutex.withLock {
-            val account = credentials.read() ?: throw IllegalStateException("請先連接 Nextcloud")
+            val account = credentials.read() ?: throw IllegalStateException(UiText.TEXT_1090917027.text())
             val edits =
                 dao.pendingMutations().filter {
                     it.entityType == item.mutation.entityType &&
                         it.entityId == item.mutation.entityId
                 }
             val latest =
-                coalesceMutations(edits).singleOrNull() ?: throw IllegalStateException("這筆衝突已經處理")
+                coalesceMutations(edits).singleOrNull() ?: throw IllegalStateException(UiText.TEXT_8B3F0B7106.text())
             require(
                 latest.operationId == item.mutation.operationId &&
                     latest.conflictServerPayload != null &&
                     latest.conflictServerPayload == item.mutation.conflictServerPayload &&
                     latest.lastError == item.mutation.lastError
             ) {
-                "比較內容已變更，請重新比較後選擇"
+                UiText.TEXT_0A03F33AF5.text()
             }
-            require(choice != ConflictChoice.BOTH || item.canKeepBoth) { "這筆變更無法保留兩份" }
+            require(choice != ConflictChoice.BOTH || item.canKeepBoth) { UiText.TEXT_9902797549.text() }
             val serverState = api.getState(account)
             require(latest.entityType != "study" || serverState.studyPlans != null) {
-                "請先更新伺服器上的 ClassFlow App，才能同步學習計劃"
+                UiText.TEXT_F328247CE6.text()
             }
             val serverPayload = serverState.payloadFor(latest.entityType, latest.entityId, gson)
             if (
@@ -383,7 +385,7 @@ class ClassFlowRepository(
                     )
                     replaceFromServer(serverState, dao.pendingMutations())
                 }
-                throw IllegalStateException("雲端內容已再次更新，請重新比較後選擇")
+                throw IllegalStateException(UiText.TEXT_FE63CF0E1D.text())
             }
             if (
                 choice == ConflictChoice.SERVER &&
@@ -397,7 +399,7 @@ class ClassFlowRepository(
                             gson.fromJson(mutation.payload, ApiSlot::class.java).courseId ==
                                 latest.entityId
                     }
-                require(!hasPendingSlots) { "這門課程還有未同步的課堂，請先處理相關課堂，再套用雲端的刪除版本" }
+                require(!hasPendingSlots) { UiText.TEXT_CEEDFEBB78.text() }
             }
             val replacement =
                 resolvedMutation(

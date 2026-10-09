@@ -13,6 +13,11 @@ if ([string]::IsNullOrWhiteSpace($versionName)) {
 }
 $archive = Join-Path $projectRoot "build\ClassFlow-Nextcloud-v$versionName.zip"
 
+$expectedStaging = [IO.Path]::GetFullPath((Join-Path $projectRoot 'build\nextcloud-package\classflow'))
+if ([IO.Path]::GetFullPath($staging) -ne $expectedStaging -or
+    -not $expectedStaging.StartsWith([IO.Path]::GetFullPath((Join-Path $projectRoot 'build')) + [IO.Path]::DirectorySeparatorChar)) {
+    throw 'Package staging directory is outside the project build directory.'
+}
 if (Test-Path $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $staging | Out-Null
 Copy-Item -Path (Join-Path $source '*') -Destination $staging -Recurse -Force -Exclude @('node_modules', 'src', 'tests', 'package.json', 'pnpm-lock.yaml', 'tsconfig.json', 'vite.config.ts', 'eslint.config.js')

@@ -8,10 +8,11 @@
     "build": "vite build",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint src --max-warnings=0",
-    "test": "node --test tests/study.test.mjs"
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@nextcloud/axios": "2.6.0",
+    "@nextcloud/l10n": "3.4.1",
     "@nextcloud/router": "3.2.0",
     "@nextcloud/vue": "9.13.1",
     "vue": "3.5.43"

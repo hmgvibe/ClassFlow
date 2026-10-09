@@ -30,7 +30,14 @@ class OfflineRepositoryTest {
             context.checkSelfPermission(android.Manifest.permission.ACCESS_NETWORK_STATE),
         )
         assertEquals(0, context.applicationInfo.flags and ApplicationInfo.FLAG_ALLOW_BACKUP)
-        assertEquals("ClassFlow 離線版", context.getString(R.string.app_name))
+        val simplified = android.content.res.Configuration(context.resources.configuration).apply {
+            setLocale(java.util.Locale.SIMPLIFIED_CHINESE)
+        }
+        val traditional = android.content.res.Configuration(context.resources.configuration).apply {
+            setLocale(java.util.Locale.TRADITIONAL_CHINESE)
+        }
+        assertEquals("ClassFlow 离线版", context.createConfigurationContext(simplified).getString(R.string.app_name))
+        assertEquals("ClassFlow 離線版", context.createConfigurationContext(traditional).getString(R.string.app_name))
     }
 
     @Test

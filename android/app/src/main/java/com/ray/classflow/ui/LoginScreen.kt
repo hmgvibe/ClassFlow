@@ -1,5 +1,7 @@
 package com.ray.classflow.ui
 
+import com.ray.classflow.i18n.UiText
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -58,10 +60,10 @@ fun LoginScreen(
                 )
             }
             Spacer(Modifier.height(24.dp))
-            Text("把學校生活整理成一條清楚的節奏", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.SemiBold)
+            Text(UiText.TEXT_14D4754DA7.text(), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(12.dp))
             Text(
-                "課表、作業、考試與活動集中管理，並安全同步到你的 Nextcloud。",
+                UiText.TEXT_BB03CF04C8.text(),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -69,7 +71,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = server,
                 onValueChange = { server = it },
-                label = { Text("Nextcloud 網址") },
+                label = { Text(UiText.TEXT_5995BFA8B7.text()) },
                 placeholder = { Text("https://cloud.example.com") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
                 singleLine = true,
@@ -85,19 +87,19 @@ fun LoginScreen(
                 if (isLoading) {
                     CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.height(22.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("等待瀏覽器授權…")
+                    Text(UiText.TEXT_D82F9A73D3.text())
                 } else {
-                    Text("連接 Nextcloud")
+                    Text(UiText.TEXT_7769DE4349.text())
                 }
             }
             Spacer(Modifier.height(8.dp))
             OutlinedButton(onClick = onOffline, enabled = !isLoading, modifier = Modifier.fillMaxWidth().height(48.dp)) {
-                Text("先離線使用")
+                Text(UiText.TEXT_4A2345DCE0.text())
             }
             Spacer(Modifier.height(16.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "登入會在系統瀏覽器完成；ClassFlow 不會取得你的主密碼。",
+                    UiText.TEXT_2388DC06C4.text(),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

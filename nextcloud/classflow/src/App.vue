@@ -8,6 +8,7 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import StudyPlans from './StudyPlans.vue'
 import { applyMutation, loadState } from './api.ts'
+import { t, uiLocale } from './i18n.ts'
 
 const emptyState = (): ClassFlowState => ({ courses: [], slots: [], agendaItems: [], serverTime: 0 })
 const state = ref<ClassFlowState>(emptyState())
@@ -26,7 +27,7 @@ const courseForm = reactive<Course>({ id: '', name: '', teacher: '', room: '', c
 const slotForm = reactive<TimetableSlot>({ id: '', courseId: '', dayOfWeek: 1, startMinutes: 480, endMinutes: 540, roomOverride: '', version: 0, updatedAt: 0 })
 const agendaForm = reactive<AgendaItem>({ id: '', type: 'homework', title: '', occursAt: Date.now() + 86400000, endsAt: null, allDay: false, status: 'pending', notes: '', reminderAt: null, linkedSlotIds: [], version: 0, updatedAt: 0 })
 
-const days = ['週一', '週二', '週三', '週四', '週五', '週六', '週日']
+const days = [t('週一'), t('週二'), t('週三'), t('週四'), t('週五'), t('週六'), t('週日')]
 const colors = [
 	'#00796b',
 	'#1565c0',
@@ -54,7 +55,7 @@ const colors = [
 	'#b71c1c',
 ]
 const maxColorKey = 0x7FFF
-const typeLabels: Record<AgendaType, string> = { homework: '作業', exam: '考試', activity: '活動', other: '其他' }
+const typeLabels: Record<AgendaType, string> = { homework: t('作業'), exam: t('考試'), activity: t('活動'), other: t('其他') }
 
 const displayCourses = computed(() => distinctCourseColors(state.value.courses))
 const courseMap = computed(() => new Map(displayCourses.value.map((course) => [course.id, course])))
@@ -312,12 +313,12 @@ function dateHeading(value: string) {
 	const tomorrow = new Date()
 	tomorrow.setDate(today.getDate() + 1)
 	const same = (a: Date, b: Date) => a.toDateString() === b.toDateString()
-	const prefix = same(date, today) ? '今天' : same(date, tomorrow) ? '明天' : date.toLocaleDateString('zh-TW', { weekday: 'long' })
-	return `${prefix} · ${date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' })}`
+	const prefix = same(date, today) ? t('今天') : same(date, tomorrow) ? t('明天') : date.toLocaleDateString(uiLocale, { weekday: 'long' })
+	return `${prefix} · ${date.toLocaleDateString(uiLocale, { month: 'numeric', day: 'numeric' })}`
 }
 
 function message(reason: unknown) {
-	return reason instanceof Error ? reason.message : '操作失敗，請稍後再試。'
+	return reason instanceof Error ? reason.message : t('操作失敗，請稍後再試。')
 }
 </script>
 
@@ -328,38 +329,38 @@ function message(reason: unknown) {
 				<p class="eyebrow">
 					CLASSFLOW
 				</p>
-				<h1>{{ activeTab === 'timetable' ? '每週課表' : activeTab === 'agenda' ? '日程管理' : '學習計劃' }}</h1>
+				<h1>{{ activeTab === 'timetable' ? t("每週課表") : activeTab === 'agenda' ? t("日程管理") : t("學習計劃") }}</h1>
 				<p class="subtitle">
-					{{ activeTab === 'timetable' ? `${state.courses.length} 門課程 · ${state.slots.length} 個時段` : activeTab === 'agenda' ? `${filteredAgenda.length} 個顯示中的日程` : '安排專注時間，循序準備作業與考試' }}
+					{{ activeTab === 'timetable' ? t("{arg1} 門課程 · {arg2} 個時段", { arg1: state.courses.length, arg2: state.slots.length }) : activeTab === 'agenda' ? t("{arg1} 個顯示中的日程", { arg1: filteredAgenda.length }) : t("安排專注時間，循序準備作業與考試") }}
 				</p>
 			</div>
 			<NcButton variant="tertiary" :disabled="loading" @click="refresh">
-				重新整理
+				{{ t('重新整理') }}
 			</NcButton>
 		</header>
 
-		<nav class="tab-bar" aria-label="主要頁面">
+		<nav class="tab-bar" :aria-label="t('主要頁面')">
 			<button :class="{ active: activeTab === 'timetable' }" @click="activeTab = 'timetable'">
-				課表
+				{{ t('課表') }}
 			</button>
 			<button :class="{ active: activeTab === 'agenda' }" @click="activeTab = 'agenda'">
-				日程
+				{{ t('日程') }}
 			</button>
 			<button :class="{ active: activeTab === 'study' }" @click="activeTab = 'study'">
-				學習計劃
+				{{ t('學習計劃') }}
 			</button>
 		</nav>
 
 		<div v-if="error" class="notice error" role="alert">
 			<span>{{ error }}</span>
-			<button aria-label="關閉" @click="error = ''">
+			<button :aria-label="t('關閉')" @click="error = ''">
 				×
 			</button>
 		</div>
 
 		<div v-if="loading" class="center-state">
 			<NcLoadingIcon :size="36" />
-			<p>正在載入 ClassFlow…</p>
+			<p>{{ t('正在載入 ClassFlow…') }}</p>
 		</div>
 
 		<template v-else-if="activeTab === 'timetable'">
@@ -375,10 +376,10 @@ function message(reason: unknown) {
 				</div>
 				<div class="toolbar-actions">
 					<NcButton variant="secondary" @click="editCourse()">
-						新增課程
+						{{ t('新增課程') }}
 					</NcButton>
 					<NcButton variant="primary" :disabled="!state.courses.length" @click="editSlot()">
-						新增課堂
+						{{ t('新增課堂') }}
 					</NcButton>
 				</div>
 			</section>
@@ -387,17 +388,17 @@ function message(reason: unknown) {
 				<div class="empty-icon">
 					CF
 				</div>
-				<h2>先建立第一門課程</h2>
-				<p>加入課程名稱、教師與教室，再安排到每週課表。</p>
+				<h2>{{ t('先建立第一門課程') }}</h2>
+				<p>{{ t('加入課程名稱、教師與教室，再安排到每週課表。') }}</p>
 				<NcButton variant="primary" @click="editCourse()">
-					建立課程
+					{{ t('建立課程') }}
 				</NcButton>
 			</section>
 
 			<section v-else class="timetable-layout">
 				<aside class="course-rail">
 					<div class="section-label">
-						課程
+						{{ t('課程') }}
 					</div>
 					<button
 						v-for="course in displayCourses"
@@ -405,12 +406,12 @@ function message(reason: unknown) {
 						class="course-row"
 						@click="editCourse(course)">
 						<span class="color-dot" :style="{ background: courseColor(course.colorKey) }" />
-						<span><strong>{{ course.name }}</strong><small>{{ [course.teacher, course.room].filter(Boolean).join(' · ') || '尚無詳細資料' }}</small></span>
+						<span><strong>{{ course.name }}</strong><small>{{ [course.teacher, course.room].filter(Boolean).join(' · ') || t("尚無詳細資料") }}</small></span>
 					</button>
 				</aside>
 				<div class="day-column">
 					<div class="section-label">
-						{{ days[selectedDay - 1] }}課堂
+						{{ t('{arg1}課堂', { arg1: days[selectedDay - 1] }) }}
 					</div>
 					<button
 						v-for="slot in state.slots.filter(value => value.dayOfWeek === selectedDay).sort((a, b) => a.startMinutes - b.startMinutes)"
@@ -419,10 +420,10 @@ function message(reason: unknown) {
 						@click="editSlot(slot)">
 						<span class="slot-time"><strong>{{ time(slot.startMinutes) }}</strong><small>{{ time(slot.endMinutes) }}</small></span>
 						<span class="slot-accent" :style="{ background: courseColor(courseMap.get(slot.courseId)?.colorKey ?? 0) }" />
-						<span class="slot-copy"><strong>{{ courseMap.get(slot.courseId)?.name }}</strong><small>{{ slot.roomOverride || courseMap.get(slot.courseId)?.room || '未指定教室' }}</small></span>
+						<span class="slot-copy"><strong>{{ courseMap.get(slot.courseId)?.name }}</strong><small>{{ slot.roomOverride || courseMap.get(slot.courseId)?.room || t("未指定教室") }}</small></span>
 					</button>
 					<div v-if="!state.slots.some(value => value.dayOfWeek === selectedDay)" class="inline-empty">
-						這天還沒有課堂。
+						{{ t('這天還沒有課堂。') }}
 					</div>
 				</div>
 			</section>
@@ -430,18 +431,18 @@ function message(reason: unknown) {
 
 		<template v-else-if="activeTab === 'agenda'">
 			<section class="toolbar agenda-tools">
-				<NcTextField v-model="query" label="搜尋標題或備註" trailingButtonIcon="close" />
-				<select v-model="typeFilter" aria-label="日程類型">
+				<NcTextField v-model="query" :label="t('搜尋標題或備註')" trailingButtonIcon="close" />
+				<select v-model="typeFilter" :aria-label="t('日程類型')">
 					<option value="all">
-						全部類型
+						{{ t('全部類型') }}
 					</option>
 					<option v-for="(label, key) in typeLabels" :key="key" :value="key">
 						{{ label }}
 					</option>
 				</select>
-				<label class="check"><input v-model="showCompleted" type="checkbox"> 顯示已完成</label>
+				<label class="check"><input v-model="showCompleted" type="checkbox">{{ t('顯示已完成') }}</label>
 				<NcButton variant="primary" @click="editAgenda()">
-					新增日程
+					{{ t('新增日程') }}
 				</NcButton>
 			</section>
 
@@ -449,10 +450,10 @@ function message(reason: unknown) {
 				<div class="empty-icon">
 					✓
 				</div>
-				<h2>目前沒有符合條件的日程</h2>
-				<p>建立作業、考試或活動，也可以連結到課堂。</p>
+				<h2>{{ t('目前沒有符合條件的日程') }}</h2>
+				<p>{{ t('建立作業、考試或活動，也可以連結到課堂。') }}</p>
 				<NcButton variant="primary" @click="editAgenda()">
-					新增日程
+					{{ t('新增日程') }}
 				</NcButton>
 			</section>
 			<section v-else class="agenda-list">
@@ -466,12 +467,12 @@ function message(reason: unknown) {
 						<input
 							type="checkbox"
 							:checked="item.status === 'completed'"
-							aria-label="完成狀態"
+							:aria-label="t('完成狀態')"
 							@click.stop
 							@change="mutate('agenda', 'upsert', { ...item, status: item.status === 'completed' ? 'pending' : 'completed' })">
 						<span class="type-dot" :class="item.type" />
 						<span class="agenda-copy">
-							<small>{{ typeLabels[item.type] }}<template v-if="!item.allDay"> · {{ new Date(item.occursAt).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }) }}</template></small>
+							<small>{{ typeLabels[item.type] }}<template v-if="!item.allDay"> · {{ new Date(item.occursAt).toLocaleTimeString(uiLocale, { hour: '2-digit', minute: '2-digit' }) }}</template></small>
 							<strong :class="{ done: item.status === 'completed' }">{{ item.title }}</strong>
 						</span>
 					</button>
@@ -488,17 +489,17 @@ function message(reason: unknown) {
 
 		<NcDialog
 			v-if="dialog === 'course'"
-			name="課程"
+			:name="t('課程')"
 			:noClose="saving"
 			@closing="dialog = null">
 			<div class="dialog-form">
-				<NcTextField v-model="courseForm.name" label="課程名稱" />
-				<NcTextField v-model="courseForm.teacher" label="教師（選填）" />
-				<NcTextField v-model="courseForm.room" label="教室（選填）" />
-				<NcTextField v-model="courseForm.notes" label="備註（選填）" />
+				<NcTextField v-model="courseForm.name" :label="t('課程名稱')" />
+				<NcTextField v-model="courseForm.teacher" :label="t('教師（選填）')" />
+				<NcTextField v-model="courseForm.room" :label="t('教室（選填）')" />
+				<NcTextField v-model="courseForm.notes" :label="t('備註（選填）')" />
 				<div class="automatic-color">
 					<span class="color-preview" :style="{ background: courseColor(courseForm.colorKey) }" />
-					<span><strong>課程色彩</strong><small>新增時會自動分配未使用的顏色</small></span>
+					<span><strong>{{ t('課程色彩') }}</strong><small>{{ t('新增時會自動分配未使用的顏色') }}</small></span>
 				</div>
 			</div>
 			<template #actions>
@@ -507,27 +508,27 @@ function message(reason: unknown) {
 					variant="error"
 					:disabled="saving"
 					@click="mutate('course', 'delete', courseForm)">
-					刪除
+					{{ t('刪除') }}
 				</NcButton>
 				<NcButton variant="primary" :disabled="saving || !courseForm.name.trim()" @click="mutate('course', 'upsert', courseForm)">
-					儲存
+					{{ t('儲存') }}
 				</NcButton>
 			</template>
 		</NcDialog>
 
 		<NcDialog
 			v-if="dialog === 'slot'"
-			name="課堂"
+			:name="t('課堂')"
 			:noClose="saving"
 			@closing="dialog = null">
 			<div class="dialog-form">
-				<label><span class="field-label">課程</span><select v-model="slotForm.courseId"><option v-for="course in state.courses" :key="course.id" :value="course.id">{{ course.name }}</option></select></label>
-				<label><span class="field-label">星期</span><select v-model.number="slotForm.dayOfWeek"><option v-for="(day, index) in days" :key="day" :value="index + 1">{{ day }}</option></select></label>
+				<label><span class="field-label">{{ t('課程') }}</span><select v-model="slotForm.courseId"><option v-for="course in state.courses" :key="course.id" :value="course.id">{{ course.name }}</option></select></label>
+				<label><span class="field-label">{{ t('星期') }}</span><select v-model.number="slotForm.dayOfWeek"><option v-for="(day, index) in days" :key="day" :value="index + 1">{{ day }}</option></select></label>
 				<div class="two-columns">
-					<label><span class="field-label">開始</span><input type="time" :value="time(slotForm.startMinutes)" @input="setTime(slotForm, 'startMinutes', ($event.target as HTMLInputElement).value)"></label>
-					<label><span class="field-label">結束</span><input type="time" :value="time(slotForm.endMinutes)" @input="setTime(slotForm, 'endMinutes', ($event.target as HTMLInputElement).value)"></label>
+					<label><span class="field-label">{{ t('開始') }}</span><input type="time" :value="time(slotForm.startMinutes)" @input="setTime(slotForm, 'startMinutes', ($event.target as HTMLInputElement).value)"></label>
+					<label><span class="field-label">{{ t('結束') }}</span><input type="time" :value="time(slotForm.endMinutes)" @input="setTime(slotForm, 'endMinutes', ($event.target as HTMLInputElement).value)"></label>
 				</div>
-				<NcTextField v-model="slotForm.roomOverride" label="教室覆寫（選填）" />
+				<NcTextField v-model="slotForm.roomOverride" :label="t('教室覆寫（選填）')" />
 			</div>
 			<template #actions>
 				<NcButton
@@ -535,39 +536,39 @@ function message(reason: unknown) {
 					variant="error"
 					:disabled="saving"
 					@click="mutate('slot', 'delete', slotForm)">
-					刪除
+					{{ t('刪除') }}
 				</NcButton>
 				<NcButton variant="primary" :disabled="saving || slotForm.startMinutes >= slotForm.endMinutes" @click="mutate('slot', 'upsert', slotForm)">
-					儲存
+					{{ t('儲存') }}
 				</NcButton>
 			</template>
 		</NcDialog>
 
 		<NcDialog
 			v-if="dialog === 'agenda'"
-			name="日程"
+			:name="t('日程')"
 			:noClose="saving"
 			@closing="dialog = null">
 			<div class="dialog-form">
-				<NcTextField v-model="agendaForm.title" label="標題" />
-				<label><span class="field-label">類型</span><select v-model="agendaForm.type"><option v-for="(label, key) in typeLabels" :key="key" :value="key">{{ label }}</option></select></label>
-				<label><span class="field-label">日期與時間</span><input type="datetime-local" :value="agendaInputDate(agendaForm)" @input="setAgendaDate(($event.target as HTMLInputElement).value)"></label>
-				<label class="check"><input v-model="agendaForm.allDay" type="checkbox"> 全天</label>
-				<NcTextField v-model="agendaForm.notes" label="備註（選填）" />
+				<NcTextField v-model="agendaForm.title" :label="t('標題')" />
+				<label><span class="field-label">{{ t('類型') }}</span><select v-model="agendaForm.type"><option v-for="(label, key) in typeLabels" :key="key" :value="key">{{ label }}</option></select></label>
+				<label><span class="field-label">{{ t('日期與時間') }}</span><input type="datetime-local" :value="agendaInputDate(agendaForm)" @input="setAgendaDate(($event.target as HTMLInputElement).value)"></label>
+				<label class="check"><input v-model="agendaForm.allDay" type="checkbox">{{ t('全天') }}</label>
+				<NcTextField v-model="agendaForm.notes" :label="t('備註（選填）')" />
 				<div>
-					<span class="field-label">連結課堂</span>
-					<small class="field-help">選擇後會自動套用該課堂的開始時間</small>
+					<span class="field-label">{{ t('連結課堂') }}</span>
+					<small class="field-help">{{ t('選擇後會自動套用該課堂的開始時間') }}</small>
 					<div class="link-selectors">
 						<label>
-							<span class="field-label">星期</span>
+							<span class="field-label">{{ t('星期') }}</span>
 							<select :value="agendaLinkDay" :disabled="!state.slots.length" @change="setAgendaLinkDay(Number(($event.target as HTMLSelectElement).value))">
 								<option v-for="(day, index) in days" :key="day" :value="index + 1">{{ day }}</option>
 							</select>
 						</label>
 						<label>
-							<span class="field-label">課堂</span>
+							<span class="field-label">{{ t('課堂') }}</span>
 							<select :value="agendaForm.linkedSlotIds[0] ?? ''" :disabled="!agendaLinkSlots.length" @change="selectAgendaSlot(($event.target as HTMLSelectElement).value)">
-								<option value="">{{ agendaLinkSlots.length ? '選擇課堂' : '當天沒有課堂' }}</option>
+								<option value="">{{ agendaLinkSlots.length ? t("選擇課堂") : t("當天沒有課堂") }}</option>
 								<option v-for="slot in agendaLinkSlots" :key="slot.id" :value="slot.id">
 									{{ courseMap.get(slot.courseId)?.name }} · {{ time(slot.startMinutes) }}
 								</option>
@@ -582,10 +583,10 @@ function message(reason: unknown) {
 					variant="error"
 					:disabled="saving"
 					@click="mutate('agenda', 'delete', agendaForm)">
-					刪除
+					{{ t('刪除') }}
 				</NcButton>
 				<NcButton variant="primary" :disabled="saving || !agendaForm.title.trim()" @click="mutate('agenda', 'upsert', agendaForm)">
-					儲存
+					{{ t('儲存') }}
 				</NcButton>
 			</template>
 		</NcDialog>

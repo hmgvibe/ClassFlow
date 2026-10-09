@@ -1,5 +1,7 @@
 package com.ray.classflow.ui
 
+import com.ray.classflow.i18n.UiText
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -90,13 +92,13 @@ fun ConflictScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (selected == null) "同步衝突" else "比較版本") },
+                title = { Text(if (selected == null) UiText.TEXT_58848B1751.text() else UiText.TEXT_F429F6DC7F.text()) },
                 navigationIcon = {
-                    IconButton(onClick = back) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回") }
+                    IconButton(onClick = back) { Icon(Icons.AutoMirrored.Filled.ArrowBack, UiText.TEXT_11D0241540.text()) }
                 },
                 actions = {
                     IconButton(onClick = onRefresh, enabled = connected && !busy) {
-                        Icon(Icons.Default.Refresh, "更新雲端版本")
+                        Icon(Icons.Default.Refresh, UiText.TEXT_68D1964BB2.text())
                     }
                 },
             )
@@ -113,7 +115,7 @@ fun ConflictScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     if (!connected)
-                        Text("請先連接 Nextcloud 才能處理衝突", style = MaterialTheme.typography.bodySmall)
+                        Text(UiText.TEXT_D035CD1DA2.text(), style = MaterialTheme.typography.bodySmall)
                     Button(
                         onClick = {
                             onClearError()
@@ -122,7 +124,7 @@ fun ConflictScreen(
                         enabled = connected && !busy,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                     ) {
-                        Text(if (resolution.resolvingKey == selected.key) "處理中…" else "使用手機版本")
+                        Text(if (resolution.resolvingKey == selected.key) UiText.TEXT_1E038F9B55.text() else UiText.TEXT_D2B2966BBD.text())
                     }
                     OutlinedButton(
                         onClick = {
@@ -132,7 +134,7 @@ fun ConflictScreen(
                         enabled = connected && !busy,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                     ) {
-                        Text("使用雲端版本")
+                        Text(UiText.TEXT_216EFB46E5.text())
                     }
                     if (selected.canKeepBoth) {
                         TextButton(
@@ -143,7 +145,7 @@ fun ConflictScreen(
                             enabled = connected && !busy,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                         ) {
-                            Text("保留兩份")
+                            Text(UiText.TEXT_E3072F94E5.text())
                         }
                     }
                 }
@@ -163,10 +165,10 @@ fun ConflictScreen(
                     modifier = Modifier.size(48.dp),
                 )
                 Spacer(Modifier.height(16.dp))
-                Text("沒有待處理的衝突", style = MaterialTheme.typography.titleLarge)
+                Text(UiText.TEXT_8B275F9FA3.text(), style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "已選擇的手機版本會在連線後同步",
+                    UiText.TEXT_B2CEACBF7C.text(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -182,7 +184,7 @@ fun ConflictScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-                            Text("正在與 Nextcloud 確認版本…", style = MaterialTheme.typography.bodySmall)
+                            Text(UiText.TEXT_F1FF00BD65.text(), style = MaterialTheme.typography.bodySmall)
                         }
                         Spacer(Modifier.height(16.dp))
                     }
@@ -198,12 +200,12 @@ fun ConflictScreen(
                 if (selected == null) {
                     item {
                         Text(
-                            "${conflicts.size} 筆資料需要你決定保留的版本",
+                            UiText.TEXT_E3FB321CDE.text(conflicts.size),
                             style = MaterialTheme.typography.titleMedium,
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "點選項目比較完整內容。尚未處理的修改會繼續保存在手機。",
+                            UiText.TEXT_C84E06EBCD.text(),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -232,10 +234,10 @@ fun ConflictScreen(
                                 Spacer(Modifier.height(4.dp))
                                 Text(
                                     when {
-                                        item.error != null -> "這筆資料無法同步，查看原因"
-                                        item.mutation.operation == "delete" -> "手機已刪除，雲端保留了修改"
-                                        item.serverDeleted -> "雲端已刪除，手機保留了修改"
-                                        else -> "手機與雲端的內容不同"
+                                        item.error != null -> UiText.TEXT_93C2A3507B.text()
+                                        item.mutation.operation == "delete" -> UiText.TEXT_21C0511622.text()
+                                        item.serverDeleted -> UiText.TEXT_24FDB1FA27.text()
+                                        else -> UiText.TEXT_92A6B029D6.text()
                                     },
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -259,7 +261,7 @@ fun ConflictScreen(
                         Text(selected.title, style = MaterialTheme.typography.headlineSmall)
                         Spacer(Modifier.height(12.dp))
                         Text(
-                            "標記「不同」的欄位有差異。選擇版本前，請確認所有內容。",
+                            UiText.TEXT_1A06FF541C.text(),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -272,26 +274,26 @@ fun ConflictScreen(
                             )
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                "可返回對應頁面修改內容，再使用手機版本重試；也可選擇雲端版本。",
+                                UiText.TEXT_35F94FBC26.text(),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                         Spacer(Modifier.height(24.dp))
                         VersionContent(
-                            "手機版本",
+                            UiText.TEXT_1D61F8244A.text(),
                             selected.localFields,
                             selected.serverFields,
-                            "手機已刪除此${selected.typeLabel}",
+                            UiText.TEXT_1A0914D4D7.text(selected.typeLabel),
                         )
                         Spacer(Modifier.height(16.dp))
                         HorizontalDivider()
                         Spacer(Modifier.height(24.dp))
                         VersionContent(
-                            "雲端版本",
+                            UiText.TEXT_2A56C7AA0D.text(),
                             selected.serverFields,
                             selected.localFields,
-                            "雲端已刪除此${selected.typeLabel}",
+                            UiText.TEXT_E87D5EAF02.text(selected.typeLabel),
                         )
                         Spacer(Modifier.height(24.dp))
                     }
@@ -302,9 +304,9 @@ fun ConflictScreen(
     confirmation?.let { (item, choice) ->
         val label =
             when (choice) {
-                ConflictChoice.LOCAL -> "使用手機版本"
-                ConflictChoice.SERVER -> "使用雲端版本"
-                ConflictChoice.BOTH -> "保留兩份"
+                ConflictChoice.LOCAL -> UiText.TEXT_D2B2966BBD.text()
+                ConflictChoice.SERVER -> UiText.TEXT_216EFB46E5.text()
+                ConflictChoice.BOTH -> UiText.TEXT_E3072F94E5.text()
             }
         AlertDialog(
             onDismissRequest = { confirmation = null },
@@ -318,20 +320,20 @@ fun ConflictScreen(
                             ConflictChoice.LOCAL ->
                                 when {
                                     item.mutation.operation == "delete" ->
-                                        "將再次刪除雲端的這筆資料。雲端目前的修改不會保留。"
+                                        UiText.TEXT_2339D0721B.text()
                                     item.serverDeleted ->
-                                        "將使用手機內容重新建立雲端的這筆資料。" +
+                                        UiText.TEXT_31D8E73225.text() +
                                             if (item.mutation.entityType == "course")
-                                                "已被雲端刪除的課堂不會一併恢復。"
+                                                UiText.TEXT_4F7DB9EC77.text()
                                             else ""
-                                    else -> "將以完整的手機內容更新這筆資料。雲端目前的修改不會保留。"
+                                    else -> UiText.TEXT_A48634FC70.text()
                                 }
                             ConflictChoice.SERVER ->
-                                "將放棄這筆資料尚未同步的手機修改，並套用雲端內容。" +
-                                    if (item.serverDeleted) "雲端已刪除它，因此手機也會移除此項目。" else ""
+                                UiText.TEXT_5B2C189DF4.text() +
+                                    if (item.serverDeleted) UiText.TEXT_A4CBA0DCDC.text() else ""
                             ConflictChoice.BOTH ->
-                                "雲端原項目會保留，手機內容會另存為一筆新項目。" +
-                                    if (item.mutation.entityType == "course") "只複製這門課程，原課堂的關聯不變。"
+                                UiText.TEXT_E9B0DA6BBB.text() +
+                                    if (item.mutation.entityType == "course") UiText.TEXT_4DCF3AD011.text()
                                     else ""
                         }
                     )
@@ -345,10 +347,10 @@ fun ConflictScreen(
                     },
                     enabled = !busy,
                 ) {
-                    Text("確認")
+                    Text(UiText.TEXT_86A07295C5.text())
                 }
             },
-            dismissButton = { TextButton(onClick = { confirmation = null }) { Text("取消") } },
+            dismissButton = { TextButton(onClick = { confirmation = null }) { Text(UiText.TEXT_4D0B4688C7.text()) } },
         )
     }
 }
@@ -378,7 +380,7 @@ private fun VersionContent(
                 )
                 if (other.find { it.label == field.label } != field) {
                     Text(
-                        "不同",
+                        UiText.TEXT_B3D980B349.text(),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                     )

@@ -14,7 +14,7 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & node node_modules/vue-tsc/bin/vue-tsc.js --noEmit
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    & node --test tests/study.test.mjs
+    & node --test tests/*.test.mjs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & node node_modules/vite/bin/vite.js build
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

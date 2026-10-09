@@ -1,5 +1,7 @@
 package com.ray.classflow.widget
 
+import com.ray.classflow.i18n.UiText
+
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
@@ -97,12 +99,12 @@ private fun TimetableWidgetContent(context: Context, data: TimetableWidgetData) 
         ) {
             Row(modifier = GlanceModifier.fillMaxWidth()) {
                 Text(
-                    text = "課堂",
+                    text = UiText.TEXT_80573F129F.text(),
                     modifier = GlanceModifier.defaultWeight(),
                     style = TextStyle(color = WidgetText, fontSize = 16.sp, fontWeight = FontWeight.Bold),
                 )
                 Text(
-                    text = now.format(DateTimeFormatter.ofPattern("M/d EEEE")),
+                    text = now.format(DateTimeFormatter.ofPattern("M/d EEEE").withLocale(UiText.displayLocale())),
                     style = TextStyle(color = WidgetMuted, fontSize = 11.sp, fontWeight = FontWeight.Medium),
                     maxLines = 1,
                 )
@@ -110,12 +112,12 @@ private fun TimetableWidgetContent(context: Context, data: TimetableWidgetData) 
             Spacer(GlanceModifier.height(8.dp))
             if (upcoming.isEmpty()) {
                 Text(
-                    text = "尚未建立課堂",
+                    text = UiText.TEXT_CEC0BD4932.text(),
                     style = TextStyle(color = WidgetText, fontSize = 14.sp, fontWeight = FontWeight.Medium),
                 )
                 Spacer(GlanceModifier.height(3.dp))
                 Text(
-                    text = "加入課表後會顯示最近兩節課",
+                    text = UiText.TEXT_1BF0752269.text(),
                     style = TextStyle(color = WidgetMuted, fontSize = 12.sp),
                 )
             } else {
@@ -126,9 +128,9 @@ private fun TimetableWidgetContent(context: Context, data: TimetableWidgetData) 
                         course = course,
                         now = now,
                         label = when {
-                            index == 0 && !now.isBefore(item.startsAt) -> "現在"
-                            index == 0 -> "最近"
-                            else -> "下一節"
+                            index == 0 && !now.isBefore(item.startsAt) -> UiText.TEXT_A3EAF71626.text()
+                            index == 0 -> UiText.TEXT_8C73D90ECA.text()
+                            else -> UiText.TEXT_CF5BBD9B33.text()
                         },
                     )
                 }
@@ -162,13 +164,13 @@ private fun TimetableWidgetRow(
         Spacer(GlanceModifier.width(10.dp))
         Column(modifier = GlanceModifier.defaultWeight()) {
             Text(
-                text = "$label · ${classTimeLabel(item, now)}",
+                text = "${label} · ${classTimeLabel(item, now)}",
                 style = TextStyle(color = WidgetPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold),
                 maxLines = 1,
             )
             Spacer(GlanceModifier.height(2.dp))
             Text(
-                text = course?.name ?: "課堂",
+                text = course?.name ?: UiText.TEXT_80573F129F.text(),
                 style = TextStyle(color = WidgetText, fontSize = 14.sp, fontWeight = FontWeight.Bold),
                 maxLines = 1,
             )
@@ -209,10 +211,10 @@ private fun classTimeLabel(item: UpcomingClass, now: ZonedDateTime): String {
     val daysAway = ChronoUnit.DAYS.between(now.toLocalDate(), item.date)
     val dayPrefix = when (daysAway) {
         0L -> ""
-        in 1L..6L -> "週${listOf("一", "二", "三", "四", "五", "六", "日")[item.date.dayOfWeek.value - 1]} "
-        else -> "${item.date.format(DateTimeFormatter.ofPattern("M/d"))} "
+        in 1L..6L -> UiText.TEXT_014FD5DFEA.text(listOf(UiText.TEXT_D274EEE8A1.text(), UiText.TEXT_1D5639F716.text(), UiText.TEXT_49DDB069D5.text(), UiText.TEXT_4F88740B34.text(), UiText.TEXT_8F07F53D63.text(), UiText.TEXT_3D72C724E0.text(), UiText.TEXT_15917F3B32.text())[item.date.dayOfWeek.value - 1])
+        else -> "${item.date.format(DateTimeFormatter.ofPattern("M/d").withLocale(UiText.displayLocale()))} "
     }
-    return "$dayPrefix${formatMinutes(item.slot.startMinutes)}–${formatMinutes(item.slot.endMinutes)}"
+    return "${dayPrefix}${formatMinutes(item.slot.startMinutes)}–${formatMinutes(item.slot.endMinutes)}"
 }
 
 private fun formatMinutes(minutes: Int): String = "%02d:%02d".format(minutes / 60, minutes % 60)

@@ -1,5 +1,6 @@
 package com.ray.classflow.ui
 
+import com.ray.classflow.i18n.UiText
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.width
@@ -28,9 +29,9 @@ class StudyPlanScreenTest {
             }
         }
         composeRule.onAllNodes(isSelectable()).assertCountEquals(5)
-        composeRule.onNodeWithText("上午").assertIsDisplayed()
-        composeRule.onNodeWithText("下午").assertIsDisplayed()
-        composeRule.onNodeWithText("晚上").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(UiText.TEXT_E214EE22DD.text(), useUnmergedTree = true).assertIsDisplayed()
+        composeRule.onNodeWithText(UiText.TEXT_1DFAAB6548.text(), useUnmergedTree = true).assertIsDisplayed()
+        composeRule.onNodeWithText(UiText.TEXT_76A4159492.text(), useUnmergedTree = true).performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -40,12 +41,12 @@ class StudyPlanScreenTest {
         val data =
             ClassFlowState(agenda = listOf(AgendaItem("exam", AgendaType.EXAM, "期中考", examTime)))
         composeRule.setContent { ClassFlowTheme { StudyPlanScreen(data, PaddingValues(), {}, {}) } }
-        composeRule.onNodeWithText("新增計劃").performClick()
-        composeRule.onNodeWithText("不連結").performClick()
-        composeRule.onNodeWithText("考試").performClick()
-        composeRule.onNodeWithText("選擇連結對象").performClick()
+        composeRule.onNodeWithText(UiText.TEXT_AEE8B65355.text(), useUnmergedTree = true).performClick()
+        composeRule.onNodeWithText(UiText.TEXT_6958A7063E.text(), useUnmergedTree = true).performClick()
+        composeRule.onNodeWithText(UiText.TEXT_2AA23AAED8.text(), useUnmergedTree = true).performClick()
+        composeRule.onNodeWithText(UiText.TEXT_A4C0BB8817.text(), useUnmergedTree = true).performClick()
         composeRule.onNodeWithText("期中考").performClick()
-        composeRule.onNodeWithText("以上時間僅供參考，不會自動更改計劃時間。").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(UiText.TEXT_BD559F688E.text(), useUnmergedTree = true).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("14:00").assertExists()
         composeRule.onNodeWithText("15:00").assertExists()
     }

@@ -1,5 +1,7 @@
 package com.ray.classflow.notification
 
+import com.ray.classflow.i18n.UiText
+
 import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
@@ -41,7 +43,7 @@ object ReminderScheduler {
         items.forEach { schedule(context, it) }
     }
 
-    private fun workName(id: String) = "classflow-reminder-$id"
+    private fun workName(id: String) = "classflow-reminder-${id}"
 }
 
 class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
@@ -53,7 +55,7 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
         ) return Result.success()
 
         val id = inputData.getString("id") ?: return Result.failure()
-        val title = inputData.getString("title") ?: "ClassFlow 日程"
+        val title = inputData.getString("title") ?: UiText.TEXT_785FBB16DD.text()
         val openIntent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("agendaId", id)
@@ -66,7 +68,7 @@ class ReminderWorker(context: Context, params: WorkerParameters) : CoroutineWork
         )
         val notification = NotificationCompat.Builder(applicationContext, ClassFlowApplication.REMINDER_CHANNEL)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("日程提醒")
+            .setContentTitle(UiText.TEXT_9962FC3D77.text())
             .setContentText(title)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

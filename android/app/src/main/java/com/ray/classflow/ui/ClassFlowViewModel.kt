@@ -1,5 +1,7 @@
 package com.ray.classflow.ui
 
+import com.ray.classflow.i18n.UiText
+
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -63,9 +65,9 @@ class ClassFlowViewModel(application: Application) : AndroidViewModel(applicatio
                     _connection.value.copy(
                         message =
                             when (choice) {
-                                ConflictChoice.LOCAL -> "已選擇手機版本，等待同步"
-                                ConflictChoice.SERVER -> "已套用雲端版本"
-                                ConflictChoice.BOTH -> "已保留兩份，手機副本等待同步"
+                                ConflictChoice.LOCAL -> UiText.TEXT_20B83CEC7C.text()
+                                ConflictChoice.SERVER -> UiText.TEXT_D5C66C5B38.text()
+                                ConflictChoice.BOTH -> UiText.TEXT_B0EDA066FD.text()
                             }
                     )
                 _conflictResolution.value = ConflictResolutionUiState()
@@ -74,7 +76,7 @@ class ClassFlowViewModel(application: Application) : AndroidViewModel(applicatio
                 throw error
             } catch (error: Throwable) {
                 _conflictResolution.value =
-                    ConflictResolutionUiState(error = error.message ?: "處理失敗，請稍後再試")
+                    ConflictResolutionUiState(error = error.message ?: UiText.TEXT_FFE4CF3DF7.text())
             }
         }
     }
@@ -115,7 +117,7 @@ class ClassFlowViewModel(application: Application) : AndroidViewModel(applicatio
             _connection.value =
                 _connection.value.copy(
                     isLoggingIn = true,
-                    message = "正在完成 Nextcloud 連線…",
+                    message = UiText.TEXT_50873069F7.text(),
                 )
             try {
                 completeLogin(session)
@@ -133,7 +135,7 @@ class ClassFlowViewModel(application: Application) : AndroidViewModel(applicatio
             ConnectionUiState(
                 connectedServer = account.serverUrl,
                 lastSyncAt = System.currentTimeMillis(),
-                message = "Nextcloud 已連線",
+                message = UiText.TEXT_A46C5D0648.text(),
             )
     }
 
@@ -143,7 +145,7 @@ class ClassFlowViewModel(application: Application) : AndroidViewModel(applicatio
             _connection.value.copy(
                 isLoggingIn = false,
                 loginUrl = null,
-                message = error.message ?: "無法連線 Nextcloud",
+                message = error.message ?: UiText.TEXT_E6C5A59DAF.text(),
             )
     }
 
@@ -164,9 +166,9 @@ class ClassFlowViewModel(application: Application) : AndroidViewModel(applicatio
                             lastSyncAt = System.currentTimeMillis(),
                             message =
                                 when {
-                                    !allSupported -> "課表與日程已同步；學習計劃保留在手機，請先更新伺服器上的 ClassFlow App"
-                                    conflicts.value.isNotEmpty() -> "同步完成，仍有衝突待處理"
-                                    else -> "同步完成"
+                                    !allSupported -> UiText.TEXT_293026F9D9.text()
+                                    conflicts.value.isNotEmpty() -> UiText.TEXT_51ACF46BF5.text()
+                                    else -> UiText.TEXT_D28A0438F5.text()
                                 },
                         )
                 }
@@ -174,34 +176,34 @@ class ClassFlowViewModel(application: Application) : AndroidViewModel(applicatio
                     _connection.value =
                         _connection.value.copy(
                             isSyncing = false,
-                            message = it.message ?: "同步失敗",
+                            message = it.message ?: UiText.TEXT_6D3579D857.text(),
                         )
                 }
         }
     }
 
     fun logout() =
-        launchAction("已登出；本機資料仍保留") { repository.logout() }
+        launchAction(UiText.TEXT_1FC79ACBA4.text()) { repository.logout() }
             .also {
                 _connection.value = ConnectionUiState()
             }
 
-    fun saveCourse(course: Course) = launchAction("課程已儲存") { repository.saveCourse(course) }
+    fun saveCourse(course: Course) = launchAction(UiText.TEXT_2E0A99567D.text()) { repository.saveCourse(course) }
 
-    fun deleteCourse(course: Course) = launchAction("課程已刪除") { repository.deleteCourse(course) }
+    fun deleteCourse(course: Course) = launchAction(UiText.TEXT_FE3F774A1D.text()) { repository.deleteCourse(course) }
 
-    fun saveSlot(slot: TimetableSlot) = launchAction("課表已更新") { repository.saveSlot(slot) }
+    fun saveSlot(slot: TimetableSlot) = launchAction(UiText.TEXT_0930D822C0.text()) { repository.saveSlot(slot) }
 
-    fun deleteSlot(slot: TimetableSlot) = launchAction("課堂已刪除") { repository.deleteSlot(slot) }
+    fun deleteSlot(slot: TimetableSlot) = launchAction(UiText.TEXT_89EE7E1992.text()) { repository.deleteSlot(slot) }
 
-    fun saveAgenda(item: AgendaItem) = launchAction("日程已儲存") { repository.saveAgenda(item) }
+    fun saveAgenda(item: AgendaItem) = launchAction(UiText.TEXT_E424ABA4F0.text()) { repository.saveAgenda(item) }
 
-    fun saveStudyPlan(plan: StudyPlan) = launchAction("計劃已儲存") { repository.saveStudyPlan(plan) }
+    fun saveStudyPlan(plan: StudyPlan) = launchAction(UiText.TEXT_C36110A7D9.text()) { repository.saveStudyPlan(plan) }
 
     fun deleteStudyPlan(plan: StudyPlan) =
-        launchAction("計劃已刪除") { repository.deleteStudyPlan(plan) }
+        launchAction(UiText.TEXT_BD04280ED0.text()) { repository.deleteStudyPlan(plan) }
 
-    fun deleteAgenda(item: AgendaItem) = launchAction("日程已刪除") { repository.deleteAgenda(item) }
+    fun deleteAgenda(item: AgendaItem) = launchAction(UiText.TEXT_5FA7EC29D7.text()) { repository.deleteAgenda(item) }
 
     fun setCompleted(item: AgendaItem, completed: Boolean) =
         launchAction(null) {
@@ -221,7 +223,7 @@ class ClassFlowViewModel(application: Application) : AndroidViewModel(applicatio
                     }
                 }
                 .onFailure {
-                    _connection.value = _connection.value.copy(message = it.message ?: "操作失敗")
+                    _connection.value = _connection.value.copy(message = it.message ?: UiText.TEXT_626C6DBFC2.text())
                 }
         }
     }

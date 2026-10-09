@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ClassFlow</string>
+    <string name="widget_agenda_name">日程</string>
+    <string name="widget_agenda_description">近期作业、考试与活动</string>
+    <string name="widget_agenda_loading">正在整理近期日程…</string>
+    <string name="widget_timetable_name">课堂</string>
+    <string name="widget_timetable_description">最近与下一节课堂</string>
+    <string name="widget_timetable_loading">正在整理最近的课堂…</string>
+</resources>

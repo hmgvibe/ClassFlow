@@ -1,5 +1,7 @@
 package com.ray.classflow.sync
 
+import com.ray.classflow.i18n.UiText
+
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -111,12 +113,12 @@ class NextcloudApi(
             val server = normalizeServer(serverInput)
             val request =
                 Request.Builder()
-                    .url("$server/index.php/login/v2")
+                    .url("${server}/index.php/login/v2")
                     .post(ByteArray(0).toRequestBody(null))
                     .header("User-Agent", USER_AGENT)
                     .build()
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) throw IOException("登入服務回傳 ${response.code}")
+                if (!response.isSuccessful) throw IOException(UiText.TEXT_42354D9FE3.text(response.code))
                 val root = gson.fromJson(response.body.string(), JsonObject::class.java)
                 val poll = root.getAsJsonObject("poll")
                 LoginSession(
@@ -156,13 +158,13 @@ class NextcloudApi(
                             )
                         }
                         404 -> Unit
-                        else -> throw IOException("授權輪詢回傳 ${it.code}")
+                        else -> throw IOException(UiText.TEXT_7373DC3FE4.text(it.code))
                     }
                 }
                 lastNetworkError = null
                 delay(2_000)
             }
-            throw IOException("登入授權已逾時", lastNetworkError)
+            throw IOException(UiText.TEXT_6D8BD892B6.text(), lastNetworkError)
         }
 
     suspend fun getState(account: Account): ApiState =
@@ -222,18 +224,18 @@ class NextcloudApi(
         client.newCall(request).execute().use { response ->
             val raw = response.body.string()
             if (!response.isSuccessful) {
-                val hint = if (response.code == 404) "請確認伺服器已啟用 ClassFlow App" else raw.take(160)
-                throw IOException("同步失敗 (${response.code})：$hint")
+                val hint = if (response.code == 404) UiText.TEXT_18656A7497.text() else raw.take(160)
+                throw IOException(UiText.TEXT_E58E0069E1.text(response.code, hint))
             }
             val root = gson.fromJson(raw, JsonObject::class.java)
-            return root.getAsJsonObject("ocs")?.get("data") ?: throw IOException("伺服器回應格式不正確")
+            return root.getAsJsonObject("ocs")?.get("data") ?: throw IOException(UiText.TEXT_1D50480020.text())
         }
     }
 
     private fun normalizeServer(value: String): String {
         val trimmed = value.trim().trimEnd('/')
         require(trimmed.startsWith("https://") || trimmed.startsWith("http://")) {
-            "請輸入包含 https:// 的伺服器網址"
+            UiText.TEXT_84C9455DF9.text()
         }
         return trimmed
     }

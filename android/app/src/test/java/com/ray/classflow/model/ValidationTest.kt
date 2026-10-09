@@ -8,7 +8,7 @@ class ValidationTest {
     @Test
     fun slotRequiresEndAfterStart() {
         val slot = TimetableSlot("slot", "course", 1, 600, 540)
-        assertEquals("結束時間必須晚於開始時間", Validation.slot(slot))
+        assertEquals("結束時間必須晚於開始時間", Validation.slot(slot)?.text())
     }
 
     @Test
@@ -32,7 +32,7 @@ class ValidationTest {
             occursAt = 1_000,
             reminderAt = 2_000,
         )
-        assertEquals("提醒時間不可晚於日程時間", Validation.agenda(item))
+        assertEquals("提醒時間不可晚於日程時間", Validation.agenda(item)?.text())
     }
 }
 

@@ -1,5 +1,7 @@
 package com.ray.classflow.ui
 
+import com.ray.classflow.i18n.UiText
+
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,13 +20,13 @@ class OfflineAppTest {
                 ClassFlowApp(model)
             }
         }
-        composeRule.onNodeWithText("日程").assertIsDisplayed()
-        composeRule.onNodeWithText("學習計劃").assertIsDisplayed()
-        composeRule.onNodeWithText("連接 Nextcloud").assertDoesNotExist()
-        composeRule.onNodeWithContentDescription("設定").performClick()
-        composeRule.onNodeWithText("本機儲存").assertIsDisplayed()
-        composeRule.onNodeWithText("ClassFlow 離線版").performScrollTo().assertIsDisplayed()
-        composeRule.onNodeWithText("立即同步").assertDoesNotExist()
-        composeRule.onNodeWithText("登出此裝置").assertDoesNotExist()
+        composeRule.onNodeWithText(UiText.TEXT_1C16B9D2A8.text()).assertIsDisplayed()
+        composeRule.onNodeWithText(UiText.TEXT_4363945A7E.text()).assertIsDisplayed()
+        composeRule.onNodeWithText(UiText.TEXT_7769DE4349.text()).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription(UiText.TEXT_6329F21C41.text()).performClick()
+        composeRule.onNodeWithText(UiText.TEXT_5E7D6AE4CE.text()).assertIsDisplayed()
+        composeRule.onNodeWithText(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext.getString(com.ray.classflow.R.string.app_name)).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(UiText.TEXT_098D06ECAC.text()).assertDoesNotExist()
+        composeRule.onNodeWithText(UiText.TEXT_8FA2CB0892.text()).assertDoesNotExist()
     }
 }

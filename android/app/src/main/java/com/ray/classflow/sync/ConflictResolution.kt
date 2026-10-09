@@ -1,5 +1,7 @@
 package com.ray.classflow.sync
 
+import com.ray.classflow.i18n.UiText
+
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.ray.classflow.data.db.PendingMutationEntity
@@ -57,7 +59,7 @@ internal fun resolvedMutation(
 ): PendingMutationEntity? {
     if (choice == ConflictChoice.SERVER) return null
     if (choice == ConflictChoice.BOTH) {
-        require(mutation.operation == "upsert" && serverPayload != null) { "這筆變更無法保留兩份" }
+        require(mutation.operation == "upsert" && serverPayload != null) { UiText.TEXT_9902797549.text() }
     }
     if (mutation.operation == "delete" && serverPayload == null) return null
     val id = if (choice == ConflictChoice.BOTH) copyId else mutation.entityId

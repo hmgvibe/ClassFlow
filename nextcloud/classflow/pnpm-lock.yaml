@@ -11,6 +11,9 @@ importers:
       '@nextcloud/axios':
         specifier: 2.6.0
         version: 2.6.0
+      '@nextcloud/l10n':
+        specifier: 3.4.1
+        version: 3.4.1
       '@nextcloud/router':
         specifier: 3.2.0
         version: 3.2.0

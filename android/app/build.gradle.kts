@@ -13,7 +13,7 @@ android {
         applicationId = "com.ray.classflow"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
+        versionCode = 5
         versionName = "2.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -31,6 +31,8 @@ android {
             buildConfigField("boolean", "CLOUD_SYNC_ENABLED", "false")
         }
     }
+
+    sourceSets.getByName("androidTestOffline").kotlin.directories.add("src/offlineAndroidTest/java")
 
     buildTypes {
         debug {

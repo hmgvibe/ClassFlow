@@ -1,5 +1,7 @@
 package com.ray.classflow.widget
 
+import com.ray.classflow.i18n.UiText
+
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -110,7 +112,7 @@ private fun WidgetContent(context: Context, data: WidgetData) {
         .filter { it.agenda.status == "PENDING" && it.agenda.occursAt >= now }
         .sortedBy { it.agenda.occursAt }
     val entries = widgetEntries(today, upcoming, maxRows)
-    val summary = if (upcoming.isEmpty()) "目前無待辦" else "${upcoming.size} 項待辦"
+    val summary = if (upcoming.isEmpty()) UiText.TEXT_7523E10472.text() else UiText.TEXT_4DAA9CCDA4.text(upcoming.size)
 
     Box(
         modifier = GlanceModifier
@@ -126,7 +128,7 @@ private fun WidgetContent(context: Context, data: WidgetData) {
         ) {
             Row(modifier = GlanceModifier.fillMaxWidth()) {
                 Text(
-                    text = "近期日程",
+                    text = UiText.TEXT_B4E2598569.text(),
                     modifier = GlanceModifier.defaultWeight(),
                     style = TextStyle(
                         color = WidgetText,
@@ -148,12 +150,12 @@ private fun WidgetContent(context: Context, data: WidgetData) {
             Spacer(GlanceModifier.height(8.dp))
             if (entries.isEmpty()) {
                 Text(
-                    text = "目前沒有即將到期的日程",
+                    text = UiText.TEXT_DA21202001.text(),
                     style = TextStyle(color = WidgetText, fontSize = 14.sp, fontWeight = FontWeight.Medium),
                 )
                 Spacer(GlanceModifier.height(3.dp))
                 Text(
-                    text = "新增作業、考試或活動後會顯示在這裡",
+                    text = UiText.TEXT_4E8F09C59A.text(),
                     style = TextStyle(color = WidgetMuted, fontSize = 12.sp),
                 )
             } else {
@@ -204,9 +206,9 @@ private fun widgetEntries(
         val date = Instant.ofEpochMilli(item.agenda.occursAt).atZone(ZoneId.systemDefault()).toLocalDate()
         WidgetEntry(
             leading = when (date) {
-                today -> "今天"
-                today.plusDays(1) -> "明天"
-                else -> date.format(DateTimeFormatter.ofPattern("M/d"))
+                today -> UiText.TEXT_17E83CC25E.text()
+                today.plusDays(1) -> UiText.TEXT_B76CE230D3.text()
+                else -> date.format(DateTimeFormatter.ofPattern("M/d").withLocale(UiText.displayLocale()))
             },
             title = item.agenda.title,
             accent = AgendaAccent,

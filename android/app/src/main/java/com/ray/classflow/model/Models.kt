@@ -1,5 +1,7 @@
 package com.ray.classflow.model
 
+import com.ray.classflow.i18n.UiText
+
 import androidx.compose.runtime.Immutable
 import java.time.DayOfWeek
 import java.time.Instant
@@ -101,10 +103,12 @@ data class StudyPlan(
         StudyPeriod.forHour(Instant.ofEpochMilli(startsAt).atZone(zone).hour)
 }
 
-enum class StudyPeriod(val label: String, val range: String, val defaultHour: Int) {
-    MORNING("上午", "00:00–12:00", 9),
-    AFTERNOON("下午", "12:00–18:00", 14),
-    EVENING("晚上", "18:00–24:00", 19);
+enum class StudyPeriod(private val labelText: UiText, val range: String, val defaultHour: Int) {
+    MORNING(UiText.TEXT_E214EE22DD, "00:00–12:00", 9),
+    AFTERNOON(UiText.TEXT_1DFAAB6548, "12:00–18:00", 14),
+    EVENING(UiText.TEXT_76A4159492, "18:00–24:00", 19);
+
+    val label: String get() = labelText.text()
 
     companion object {
         fun forHour(hour: Int): StudyPeriod =

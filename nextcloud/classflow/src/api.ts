@@ -2,6 +2,8 @@ import type { ClassFlowState, Mutation } from './types.ts'
 
 import axios from '@nextcloud/axios'
 import { generateOcsUrl } from '@nextcloud/router'
+import { serverErrorMessage } from './errors.ts'
+import { t } from './i18n.ts'
 
 const stateUrl = generateOcsUrl('/apps/classflow/api/v1/state')
 const syncUrl = generateOcsUrl('/apps/classflow/api/v1/sync')
@@ -24,7 +26,7 @@ export async function applyMutation(mutation: Mutation): Promise<ClassFlowState>
 
 	const conflict = result.conflicts.find((item) => item.operationId === mutation.operationId)
 	if (conflict) {
-		throw new Error(conflict.error ?? '資料已在另一個裝置修改，請重新載入後再試。')
+		throw new Error(conflict.error ? serverErrorMessage(conflict.error) : t('資料已在另一個裝置修改，請重新載入後再試。'))
 	}
 	return result.state
 }

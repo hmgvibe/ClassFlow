@@ -1,5 +1,7 @@
 package com.ray.classflow.ui.screens
 
+import com.ray.classflow.i18n.UiText
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -76,14 +78,16 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.UUID
 
-private val typeLabels = mapOf(
-    AgendaType.HOMEWORK to "作業",
-    AgendaType.EXAM to "考試",
-    AgendaType.ACTIVITY to "活動",
-    AgendaType.OTHER to "其他",
+private val typeLabels
+    get() = mapOf(
+    AgendaType.HOMEWORK to UiText.TEXT_631A2479D9.text(),
+    AgendaType.EXAM to UiText.TEXT_2AA23AAED8.text(),
+    AgendaType.ACTIVITY to UiText.TEXT_47E6C61BB4.text(),
+    AgendaType.OTHER to UiText.TEXT_1A26EDF94A.text(),
 )
 
-private val agendaDayLabels = listOf("一", "二", "三", "四", "五", "六", "日")
+private val agendaDayLabels
+    get() = listOf(UiText.TEXT_D274EEE8A1.text(), UiText.TEXT_1D5639F716.text(), UiText.TEXT_49DDB069D5.text(), UiText.TEXT_4F88740B34.text(), UiText.TEXT_8F07F53D63.text(), UiText.TEXT_3D72C724E0.text(), UiText.TEXT_15917F3B32.text())
 
 private val typeColors = mapOf(
     AgendaType.HOMEWORK to Color(0xFF3B6EA8),
@@ -119,7 +123,7 @@ fun AgendaScreen(
             ExtendedFloatingActionButton(
                 onClick = { editorItem = null; showEditor = true },
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text("新增日程") },
+                text = { Text(UiText.TEXT_1DA7A50ADC.text()) },
             )
         },
     ) { inner ->
@@ -129,7 +133,7 @@ fun AgendaScreen(
                     value = query,
                     onValueChange = { query = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("搜尋標題或備註") },
+                    placeholder = { Text(UiText.TEXT_C073BBD4DC.text()) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     singleLine = true,
                 )
@@ -138,11 +142,11 @@ fun AgendaScreen(
                     modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    FilterChip(selected = selectedType == null, onClick = { selectedType = null }, label = { Text("全部") })
+                    FilterChip(selected = selectedType == null, onClick = { selectedType = null }, label = { Text(UiText.TEXT_778FC8F994.text()) })
                     AgendaType.entries.forEach { type ->
                         FilterChip(selected = selectedType == type, onClick = { selectedType = type }, label = { Text(typeLabels.getValue(type)) })
                     }
-                    FilterChip(selected = showCompleted, onClick = { showCompleted = !showCompleted }, label = { Text("含已完成") })
+                    FilterChip(selected = showCompleted, onClick = { showCompleted = !showCompleted }, label = { Text(UiText.TEXT_A9B8D1F7FD.text()) })
                 }
             }
             Spacer(Modifier.height(8.dp))
@@ -154,7 +158,7 @@ fun AgendaScreen(
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 104.dp),
                 ) {
                     grouped.forEach { (date, itemsForDate) ->
-                        item(key = "header-$date") {
+                        item(key = "header-${date}") {
                             Text(
                                 dateLabel(date),
                                 style = MaterialTheme.typography.titleSmall,
@@ -213,7 +217,7 @@ private fun AgendaRow(
                 Text(typeLabels.getValue(item.type), style = MaterialTheme.typography.labelMedium, color = typeColors.getValue(item.type))
                 if (!item.allDay) {
                     Text(
-                        " · ${Instant.ofEpochMilli(item.occursAt).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm"))}",
+                        " · ${Instant.ofEpochMilli(item.occursAt).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm").withLocale(UiText.displayLocale()))}",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -246,8 +250,8 @@ private fun EmptyAgenda(hasFilters: Boolean) {
             Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.padding(16.dp))
         }
         Spacer(Modifier.height(16.dp))
-        Text(if (hasFilters) "沒有符合條件的日程" else "目前沒有待辦日程", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
-        Text(if (hasFilters) "調整搜尋或篩選條件" else "加入作業、考試或活動", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(if (hasFilters) UiText.TEXT_86BF71ABED.text() else UiText.TEXT_10DF5CCE16.text(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
+        Text(if (hasFilters) UiText.TEXT_1434342812.text() else UiText.TEXT_7F7366D312.text(), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -267,7 +271,7 @@ private fun AgendaEditorDialog(
     var title by remember(item) { mutableStateOf(item?.title.orEmpty()) }
     var type by remember(item) { mutableStateOf(item?.type ?: AgendaType.HOMEWORK) }
     var selectedDate by remember(item) { mutableStateOf(initialDateTime.toLocalDate()) }
-    var time by remember(item) { mutableStateOf(initialDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))) }
+    var time by remember(item) { mutableStateOf(initialDateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm").withLocale(UiText.displayLocale()))) }
     var allDay by remember(item) { mutableStateOf(item?.allDay ?: false) }
     var notes by remember(item) { mutableStateOf(item?.notes.orEmpty()) }
     val initialLinkedSlot = remember(item, slots) {
@@ -293,14 +297,14 @@ private fun AgendaEditorDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (item == null) "新增日程" else "編輯日程") },
+        title = { Text(if (item == null) UiText.TEXT_1DA7A50ADC.text() else UiText.TEXT_A0E9E32E0B.text()) },
         text = {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item {
-                    OutlinedTextField(title, { title = it }, label = { Text("標題") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(title, { title = it }, label = { Text(UiText.TEXT_BEC815141B.text()) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 }
                 item {
                     Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -312,33 +316,33 @@ private fun AgendaEditorDialog(
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                         OutlinedButton(onClick = { showDatePicker = true }, modifier = Modifier.weight(1f)) {
-                            Text(selectedDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
+                            Text(selectedDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(UiText.displayLocale())))
                         }
                         if (!allDay) {
-                            OutlinedTextField(time, { time = it }, label = { Text("時間") }, placeholder = { Text("16:00") }, singleLine = true, modifier = Modifier.width(104.dp))
+                            OutlinedTextField(time, { time = it }, label = { Text(UiText.TEXT_09558B2CC6.text()) }, placeholder = { Text("16:00") }, singleLine = true, modifier = Modifier.width(104.dp))
                         }
                     }
                 }
                 item {
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("全天", style = MaterialTheme.typography.bodyLarge)
-                            Text("不顯示指定時間", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(UiText.TEXT_79B62069F5.text(), style = MaterialTheme.typography.bodyLarge)
+                            Text(UiText.TEXT_237C71FDDE.text(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Switch(checked = allDay, onCheckedChange = { allDay = it })
                     }
                 }
                 item {
-                    Text("提醒", style = MaterialTheme.typography.labelLarge)
+                    Text(UiText.TEXT_81944E48A3.text(), style = MaterialTheme.typography.labelLarge)
                     Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf(0 to "不提醒", 60 to "1 小時前", 1440 to "1 天前").forEach { (minutes, label) ->
+                        listOf(0 to UiText.TEXT_0D85DE063E.text(), 60 to UiText.TEXT_15B2B923CE.text(), 1440 to UiText.TEXT_FBA0FE4862.text()).forEach { (minutes, label) ->
                             FilterChip(selected = reminderMinutes == minutes, onClick = { reminderMinutes = minutes }, label = { Text(label) })
                         }
                     }
                 }
                 item {
-                    Text("連結課堂", style = MaterialTheme.typography.labelLarge)
-                    Text("選擇後會自動套用該課堂的開始時間", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(UiText.TEXT_1E4D4234B2.text(), style = MaterialTheme.typography.labelLarge)
+                    Text(UiText.TEXT_66D4A36DA4.text(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Box(Modifier.weight(1f)) {
                             OutlinedButton(
@@ -346,14 +350,14 @@ private fun AgendaEditorDialog(
                                 enabled = slots.isNotEmpty(),
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
-                                Text("週${agendaDayLabels[linkedDay - 1]}")
+                                Text(UiText.TEXT_21ED347F10.text(agendaDayLabels[linkedDay - 1]))
                                 Spacer(Modifier.weight(1f))
                                 Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                             }
                             DropdownMenu(expanded = dayMenuOpen, onDismissRequest = { dayMenuOpen = false }) {
                                 agendaDayLabels.forEachIndexed { index, label ->
                                     DropdownMenuItem(
-                                        text = { Text("週$label") },
+                                        text = { Text(UiText.TEXT_21ED347F10.text(label)) },
                                         onClick = {
                                             linkedDay = index + 1
                                             if (linkedSlotId !in slots.filter { it.dayOfWeek == linkedDay }.map { it.id }) {
@@ -372,8 +376,8 @@ private fun AgendaEditorDialog(
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
                                 Text(
-                                    linkedSlot?.let { courseMap[it.courseId]?.name ?: "課程" }
-                                        ?: if (linkedDaySlots.isEmpty()) "當天無課堂" else "選擇課堂",
+                                    linkedSlot?.let { courseMap[it.courseId]?.name ?: UiText.TEXT_ECA9598BA5.text() }
+                                        ?: if (linkedDaySlots.isEmpty()) UiText.TEXT_08E84CA954.text() else UiText.TEXT_7F59354F24.text(),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                 )
@@ -383,7 +387,7 @@ private fun AgendaEditorDialog(
                             DropdownMenu(expanded = slotMenuOpen, onDismissRequest = { slotMenuOpen = false }) {
                                 linkedDaySlots.forEach { slot ->
                                     DropdownMenuItem(
-                                        text = { Text("${courseMap[slot.courseId]?.name ?: "課程"} · ${String.format("%02d:%02d", slot.startMinutes / 60, slot.startMinutes % 60)}") },
+                                        text = { Text("${courseMap[slot.courseId]?.name ?: UiText.TEXT_ECA9598BA5.text()} · ${String.format("%02d:%02d", slot.startMinutes / 60, slot.startMinutes % 60)}") },
                                         onClick = {
                                             linkedSlotId = slot.id
                                             time = String.format("%02d:%02d", slot.startMinutes / 60, slot.startMinutes % 60)
@@ -397,13 +401,13 @@ private fun AgendaEditorDialog(
                     }
                 }
                 item {
-                    OutlinedTextField(notes, { notes = it }, label = { Text("備註（選填）") }, minLines = 3, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(notes, { notes = it }, label = { Text(UiText.TEXT_45DC68DB57.text()) }, minLines = 3, modifier = Modifier.fillMaxWidth())
                 }
                 if (onDelete != null) {
                     item {
                         TextButton(onClick = onDelete) {
                             Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-                            Text("刪除此日程", color = MaterialTheme.colorScheme.error)
+                            Text(UiText.TEXT_F922787907.text(), color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }
@@ -427,9 +431,9 @@ private fun AgendaEditorDialog(
                         version = item?.version ?: 0,
                     ))
                 },
-            ) { Text("儲存") }
+            ) { Text(UiText.TEXT_C7B0321049.text()) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(UiText.TEXT_4D0B4688C7.text()) } },
     )
 
     if (showDatePicker) {
@@ -444,9 +448,9 @@ private fun AgendaEditorDialog(
                         selectedDate = Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()
                     }
                     showDatePicker = false
-                }) { Text("確定") }
+                }) { Text(UiText.TEXT_C02292DD59.text()) }
             },
-            dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text("取消") } },
+            dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text(UiText.TEXT_4D0B4688C7.text()) } },
         ) { DatePicker(state = pickerState) }
     }
 }
@@ -454,8 +458,8 @@ private fun AgendaEditorDialog(
 private fun dateLabel(date: LocalDate): String {
     val today = LocalDate.now()
     return when (date) {
-        today -> "今天 · ${date.monthValue}/${date.dayOfMonth}"
-        today.plusDays(1) -> "明天 · ${date.monthValue}/${date.dayOfMonth}"
-        else -> date.format(DateTimeFormatter.ofPattern("M 月 d 日 · EEEE"))
+        today -> UiText.TEXT_83D8B625E8.text(date.monthValue, date.dayOfMonth)
+        today.plusDays(1) -> UiText.TEXT_BF2F4467C3.text(date.monthValue, date.dayOfMonth)
+        else -> date.format(DateTimeFormatter.ofPattern(UiText.TEXT_D07B357C8C.text()).withLocale(UiText.displayLocale()))
     }
 }

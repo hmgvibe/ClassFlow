@@ -1,5 +1,7 @@
 package com.ray.classflow.ui
 
+import com.ray.classflow.i18n.UiText
+
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -17,8 +19,8 @@ class LoginScreenTest {
                 LoginScreen(isLoading = false, onConnect = {}, onOffline = {})
             }
         }
-        composeRule.onNodeWithText("連接 Nextcloud").assertIsDisplayed()
-        composeRule.onNodeWithText("先離線使用").assertIsDisplayed()
+        composeRule.onNodeWithText(UiText.TEXT_7769DE4349.text()).assertIsDisplayed()
+        composeRule.onNodeWithText(UiText.TEXT_4A2345DCE0.text()).assertIsDisplayed()
     }
 }
 

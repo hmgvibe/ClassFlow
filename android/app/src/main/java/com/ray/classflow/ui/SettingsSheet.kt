@@ -1,5 +1,7 @@
 package com.ray.classflow.ui
 
+import com.ray.classflow.i18n.UiText
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -53,7 +55,7 @@ fun SettingsSheet(
                     .padding(bottom = 32.dp)
         ) {
             Text(
-                "設定",
+                UiText.TEXT_6329F21C41.text(),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -66,15 +68,15 @@ fun SettingsSheet(
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    connection.connectedServer ?: "尚未連線",
+                    connection.connectedServer ?: UiText.TEXT_5B1A352ADF.text(),
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
                     when {
-                        conflicts > 0 -> "$conflicts 筆同步衝突需要處理"
-                        pendingChanges > 0 -> "$pendingChanges 筆變更等待同步"
-                        connection.connectedServer != null -> "資料已同步"
-                        else -> "目前只儲存在這台裝置"
+                        conflicts > 0 -> UiText.TEXT_73F07F4BEB.text(conflicts)
+                        pendingChanges > 0 -> UiText.TEXT_C1B363108F.text(pendingChanges)
+                        connection.connectedServer != null -> UiText.TEXT_524FD4116D.text()
+                        else -> UiText.TEXT_758F326BD8.text()
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     color =
@@ -83,7 +85,7 @@ fun SettingsSheet(
                 )
                 connection.lastSyncAt?.let {
                     Text(
-                        "上次同步 ${Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("M/d HH:mm"))}",
+                        UiText.TEXT_368BABBF26.text(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("M/d HH:mm").withLocale(UiText.displayLocale()))),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -91,13 +93,13 @@ fun SettingsSheet(
                 Spacer(Modifier.height(16.dp))
                 if (conflicts > 0) {
                     OutlinedButton(onClick = onConflicts, modifier = Modifier.fillMaxWidth()) {
-                        Text("處理同步衝突（$conflicts）")
+                        Text(UiText.TEXT_FFD84031E5.text(conflicts))
                     }
                     Spacer(Modifier.height(8.dp))
                 }
                 if (connection.connectedServer == null) {
                     Button(onClick = onConnect, modifier = Modifier.fillMaxWidth()) {
-                        Text("連接 Nextcloud")
+                        Text(UiText.TEXT_7769DE4349.text())
                     }
                 } else {
                     Button(
@@ -107,24 +109,24 @@ fun SettingsSheet(
                     ) {
                         Icon(Icons.Default.Refresh, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
-                        Text(if (connection.isSyncing) "同步中…" else "立即同步")
+                        Text(if (connection.isSyncing) UiText.TEXT_915D375A0B.text() else UiText.TEXT_098D06ECAC.text())
                     }
                     Spacer(Modifier.height(8.dp))
                     OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth()) {
-                        Text("登出此裝置")
+                        Text(UiText.TEXT_8FA2CB0892.text())
                     }
                 }
             } else {
-                Text("本機儲存", style = MaterialTheme.typography.titleMedium)
+                Text(UiText.TEXT_5E7D6AE4CE.text(), style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "課表、日程與學習計劃只儲存在這台裝置，不需要帳號，也不會連接 Nextcloud。",
+                    UiText.TEXT_378D4D7E70.text(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "與原版資料獨立。卸載 App 或清除資料後，本機內容將無法恢復。",
+                    UiText.TEXT_A6515B95EB.text(),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -140,7 +142,7 @@ fun SettingsSheet(
                 Column {
                     Text(stringResource(R.string.app_name), fontWeight = FontWeight.Medium)
                     Text(
-                        "版本 ${com.ray.classflow.BuildConfig.VERSION_NAME}",
+                        UiText.TEXT_9BD27DDB95.text(com.ray.classflow.BuildConfig.VERSION_NAME),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

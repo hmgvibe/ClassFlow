@@ -14,6 +14,9 @@ ClassFlow 是一套以 Nextcloud 為同步中心的個人課表與校園日程�
 - 本機提醒、搜尋、篩選與桌面小工具
 - Nextcloud 網頁端完整管理
 - 淺色與深色 Android UI
+- Android 與網頁端支援簡體／繁體中文，跟隨系統或 Nextcloud 使用者語言
+
+宣傳影片與真實操作錄製、重新生成方式見 [影片製作說明](docs/promo-video.md)。
 
 學習計劃的時間需自行安排，連結對象的時間僅供參考。2.0.0 的資料遷移、升級與驗證方式見 [學習計劃說明](docs/study-plans.md)。
 

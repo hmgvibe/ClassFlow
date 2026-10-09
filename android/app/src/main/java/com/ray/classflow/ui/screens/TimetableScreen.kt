@@ -1,5 +1,7 @@
 package com.ray.classflow.ui.screens
 
+import com.ray.classflow.i18n.UiText
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
@@ -71,7 +73,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.util.UUID
 
-private val dayLabels = listOf("一", "二", "三", "四", "五", "六", "日")
+private val dayLabels
+    get() = listOf(UiText.TEXT_D274EEE8A1.text(), UiText.TEXT_1D5639F716.text(), UiText.TEXT_49DDB069D5.text(), UiText.TEXT_4F88740B34.text(), UiText.TEXT_8F07F53D63.text(), UiText.TEXT_3D72C724E0.text(), UiText.TEXT_15917F3B32.text())
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,7 +104,7 @@ fun TimetableScreen(
                     }
                 },
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text(if (displayCourses.isEmpty()) "建立課程" else "新增課堂") },
+                text = { Text(if (displayCourses.isEmpty()) UiText.TEXT_0B011E5F12.text() else UiText.TEXT_03F3383AE8.text()) },
             )
         },
     ) { inner ->
@@ -116,14 +119,14 @@ fun TimetableScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column {
-                        Text("每週課表", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                        Text(UiText.TEXT_C214E9735D.text(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                         Text(
-                            "${displayCourses.size} 門課程 · ${state.slots.size} 個時段",
+                            UiText.TEXT_F7696DC3BA.text(displayCourses.size, state.slots.size),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    TextButton(onClick = { showCourses = true }) { Text("管理課程") }
+                    TextButton(onClick = { showCourses = true }) { Text(UiText.TEXT_D2100C2E44.text()) }
                 }
 
                 if (isWide) {
@@ -178,7 +181,7 @@ private fun DaySelector(selectedDay: Int, onSelected: (Int) -> Unit) {
             FilterChip(
                 selected = selectedDay == index + 1,
                 onClick = { onSelected(index + 1) },
-                label = { Text("週$label") },
+                label = { Text(UiText.TEXT_21ED347F10.text(label)) },
             )
         }
     }
@@ -228,7 +231,7 @@ private fun ScheduleRow(slot: TimetableSlot, course: Course, onEdit: (TimetableS
                 Text(detail, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        Icon(Icons.Default.Edit, contentDescription = "編輯", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+        Icon(Icons.Default.Edit, contentDescription = UiText.TEXT_BAD46AEA44.text(), tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
     }
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
 }
@@ -244,8 +247,8 @@ private fun EmptySchedule() {
             Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.padding(16.dp))
         }
         Spacer(Modifier.height(16.dp))
-        Text("這天還沒有課", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
-        Text("使用右下角按鈕加入第一堂課", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(UiText.TEXT_634DC556F1.text(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
+        Text(UiText.TEXT_9C559B0C4E.text(), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -255,7 +258,7 @@ private fun WeeklyGrid(state: ClassFlowState, onEdit: (TimetableSlot) -> Unit) {
     Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         (1..5).forEach { day ->
             Column(modifier = Modifier.weight(1f)) {
-                Text("週${dayLabels[day - 1]}", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(8.dp))
+                Text(UiText.TEXT_21ED347F10.text(dayLabels[day - 1]), style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(8.dp))
                 state.slots.filter { it.dayOfWeek == day }.sortedBy { it.startMinutes }.forEach { slot ->
                     courseMap[slot.courseId]?.let { course ->
                         Surface(
@@ -290,7 +293,7 @@ private fun CourseManagerDialog(
     var showEditor by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("管理課程") },
+        title = { Text(UiText.TEXT_D2100C2E44.text()) },
         text = {
             Column(
                 modifier = Modifier
@@ -299,7 +302,7 @@ private fun CourseManagerDialog(
                     .verticalScroll(rememberScrollState()),
             ) {
                 if (courses.isEmpty()) {
-                    Text("先建立一門課程，再把它安排到每週課表。", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(UiText.TEXT_F85D11FA8D.text(), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
                     courses.forEach { course ->
                         Row(
@@ -312,7 +315,7 @@ private fun CourseManagerDialog(
                                 val secondary = listOf(course.teacher, course.room).filter { it.isNotBlank() }.joinToString(" · ")
                                 if (secondary.isNotEmpty()) Text(secondary, style = MaterialTheme.typography.bodySmall)
                             }
-                            Icon(Icons.Default.Edit, contentDescription = "編輯")
+                            Icon(Icons.Default.Edit, contentDescription = UiText.TEXT_BAD46AEA44.text())
                         }
                     }
                 }
@@ -322,11 +325,11 @@ private fun CourseManagerDialog(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
-                    Text("新增課程")
+                    Text(UiText.TEXT_5309D87204.text())
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("完成") } },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(UiText.TEXT_33246F6A5E.text()) } },
     )
     if (showEditor) {
         CourseEditorDialog(
@@ -356,7 +359,7 @@ private fun CourseEditorDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (course == null) "新增課程" else "編輯課程") },
+        title = { Text(if (course == null) UiText.TEXT_5309D87204.text() else UiText.TEXT_23234A9ADE.text()) },
         text = {
             Column(
                 modifier = Modifier
@@ -365,10 +368,10 @@ private fun CourseEditorDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                OutlinedTextField(name, { name = it }, label = { Text("課程名稱") }, singleLine = true)
-                OutlinedTextField(teacher, { teacher = it }, label = { Text("教師（選填）") }, singleLine = true)
-                OutlinedTextField(room, { room = it }, label = { Text("教室（選填）") }, singleLine = true)
-                OutlinedTextField(notes, { notes = it }, label = { Text("備註（選填）") }, minLines = 2)
+                OutlinedTextField(name, { name = it }, label = { Text(UiText.TEXT_75CA6F3B51.text()) }, singleLine = true)
+                OutlinedTextField(teacher, { teacher = it }, label = { Text(UiText.TEXT_FA0CA7A183.text()) }, singleLine = true)
+                OutlinedTextField(room, { room = it }, label = { Text(UiText.TEXT_B1D1120895.text()) }, singleLine = true)
+                OutlinedTextField(notes, { notes = it }, label = { Text(UiText.TEXT_45DC68DB57.text()) }, minLines = 2)
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -376,9 +379,9 @@ private fun CourseEditorDialog(
                 ) {
                     Box(Modifier.size(28.dp).clip(CircleShape).background(courseColor(colorKey)))
                     Column {
-                        Text("課程色彩", style = MaterialTheme.typography.labelLarge)
+                        Text(UiText.TEXT_76431DFA26.text(), style = MaterialTheme.typography.labelLarge)
                         Text(
-                            "新增時會自動分配未使用的顏色",
+                            UiText.TEXT_17D66DC471.text(),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -387,7 +390,7 @@ private fun CourseEditorDialog(
                 if (onDelete != null) {
                     TextButton(onClick = onDelete) {
                         Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-                        Text("刪除課程", color = MaterialTheme.colorScheme.error)
+                        Text(UiText.TEXT_74F88B4455.text(), color = MaterialTheme.colorScheme.error)
                     }
                 }
             }
@@ -406,9 +409,9 @@ private fun CourseEditorDialog(
                     ))
                 },
                 enabled = name.isNotBlank(),
-            ) { Text("儲存") }
+            ) { Text(UiText.TEXT_C7B0321049.text()) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(UiText.TEXT_4D0B4688C7.text()) } },
     )
 }
 
@@ -431,7 +434,7 @@ private fun SlotEditorDialog(
     val endMinutes = parseTime(end)
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (slot == null) "新增課堂" else "編輯課堂") },
+        title = { Text(if (slot == null) UiText.TEXT_03F3383AE8.text() else UiText.TEXT_5A0A5374D7.text()) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -442,7 +445,7 @@ private fun SlotEditorDialog(
             ) {
                 Box {
                     OutlinedButton(onClick = { menuOpen = true }, modifier = Modifier.fillMaxWidth()) {
-                        Text(courses.firstOrNull { it.id == courseId }?.name ?: "選擇課程")
+                        Text(courses.firstOrNull { it.id == courseId }?.name ?: UiText.TEXT_ABDF8CCFB0.text())
                         Spacer(Modifier.weight(1f))
                         Icon(Icons.Default.MoreVert, contentDescription = null)
                     }
@@ -458,14 +461,14 @@ private fun SlotEditorDialog(
                 DaySelector(selectedDay = day, onSelected = { day = it })
 
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedTextField(start, { start = it }, label = { Text("開始") }, placeholder = { Text("08:00") }, singleLine = true, modifier = Modifier.weight(1f))
-                    OutlinedTextField(end, { end = it }, label = { Text("結束") }, placeholder = { Text("09:00") }, singleLine = true, modifier = Modifier.weight(1f))
+                    OutlinedTextField(start, { start = it }, label = { Text(UiText.TEXT_A95BF2FED6.text()) }, placeholder = { Text("08:00") }, singleLine = true, modifier = Modifier.weight(1f))
+                    OutlinedTextField(end, { end = it }, label = { Text(UiText.TEXT_6B9C732A28.text()) }, placeholder = { Text("09:00") }, singleLine = true, modifier = Modifier.weight(1f))
                 }
-                OutlinedTextField(room, { room = it }, label = { Text("教室覆寫（選填）") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(room, { room = it }, label = { Text(UiText.TEXT_342E414A27.text()) }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 if (onDelete != null) {
                     TextButton(onClick = onDelete) {
                         Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-                        Text("刪除此課堂", color = MaterialTheme.colorScheme.error)
+                        Text(UiText.TEXT_32571704A4.text(), color = MaterialTheme.colorScheme.error)
                     }
                 }
             }
@@ -484,9 +487,9 @@ private fun SlotEditorDialog(
                     ))
                 },
                 enabled = courseId.isNotBlank() && startMinutes != null && endMinutes != null && startMinutes < endMinutes,
-            ) { Text("儲存") }
+            ) { Text(UiText.TEXT_C7B0321049.text()) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(UiText.TEXT_4D0B4688C7.text()) } },
     )
 }
 

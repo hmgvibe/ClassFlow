@@ -1,5 +1,7 @@
 package com.ray.classflow.ui
 
+import com.ray.classflow.i18n.UiText
+
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -36,10 +38,12 @@ import com.ray.classflow.ui.screens.AgendaScreen
 import com.ray.classflow.ui.screens.StudyPlanScreen
 import com.ray.classflow.ui.screens.TimetableScreen
 
-private enum class MainTab(val label: String) {
-    TIMETABLE("課表"),
-    AGENDA("日程"),
-    STUDY("學習計劃"),
+private enum class MainTab(private val labelText: UiText) {
+    TIMETABLE(UiText.TEXT_3833660DD9),
+    AGENDA(UiText.TEXT_1C16B9D2A8),
+    STUDY(UiText.TEXT_4363945A7E);
+
+    val label: String get() = labelText.text()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,12 +109,12 @@ fun ClassFlowApp(viewModel: ClassFlowViewModel) {
                                     }
                                 }
                             ) {
-                                Icon(Icons.Default.Refresh, contentDescription = "同步")
+                                Icon(Icons.Default.Refresh, contentDescription = UiText.TEXT_E88AB5BA61.text())
                             }
                         }
                     }
                     IconButton(onClick = { showSettings = true }) {
-                        Icon(Icons.Default.Settings, contentDescription = "設定")
+                        Icon(Icons.Default.Settings, contentDescription = UiText.TEXT_6329F21C41.text())
                     }
                 },
             )
@@ -121,19 +125,19 @@ fun ClassFlowApp(viewModel: ClassFlowViewModel) {
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
                     icon = { Icon(Icons.Default.DateRange, contentDescription = null) },
-                    label = { Text("課表") },
+                    label = { Text(UiText.TEXT_3833660DD9.text()) },
                 )
                 NavigationBarItem(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
                     icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
-                    label = { Text("日程") },
+                    label = { Text(UiText.TEXT_1C16B9D2A8.text()) },
                 )
                 NavigationBarItem(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
                     icon = { Icon(Icons.Default.Edit, contentDescription = null) },
-                    label = { Text("學習計劃") },
+                    label = { Text(UiText.TEXT_4363945A7E.text()) },
                 )
             }
         },
